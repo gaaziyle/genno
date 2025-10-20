@@ -1,5 +1,5 @@
 import Link from "next/link";
-
+import gennoLogo from "@/app/genno-logo.png";
 export default function Footer() {
   return (
     <footer className="bg-black border-t border-white/10">
@@ -11,10 +11,12 @@ export default function Footer() {
               href="/"
               className="flex items-center gap-2 text-xl font-bold"
             >
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold">G</span>
-              </div>
-              <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+              <img
+                src={gennoLogo.src}
+                alt="Genno"
+                className="w-8 h-8 rounded-lg"
+              />
+              <span className="bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
                 Genno
               </span>
             </Link>
@@ -185,7 +187,7 @@ export default function Footer() {
         <div className="border-t border-white/10 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-gray-400 text-sm">
-              © 2024 Genno. All rights reserved.
+              © {new Date().getFullYear()} Genno. All rights reserved.
             </p>
             <p className="text-gray-400 text-sm">
               Built with ❤️ for content creators

@@ -1,20 +1,94 @@
 "use client";
 
 import { useState } from "react";
+import { useUser } from "@clerk/nextjs";
+import { supabase } from "@/lib/supabase";
 
 export default function ConvertPage() {
+  const { user } = useUser();
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
-  const handleConvert = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
+    setSuccess(false);
 
-    // TODO: Implement actual conversion logic
-    setTimeout(() => {
+    try {
+      // Validate URL
+      if (!url.trim()) {
+        throw new Error("Please enter a YouTube URL");
+      }
+
+      // Basic YouTube URL validation
+      const youtubeRegex =
+        /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/;
+      if (!youtubeRegex.test(url)) {
+        throw new Error("Please enter a valid YouTube URL");
+      }
+
+      // Get user email from Clerk
+      const userEmail = user?.primaryEmailAddress?.emailAddress;
+      if (!userEmail) {
+        throw new Error(
+          "Unable to get your email address. Please try logging out and back in."
+        );
+      }
+
+      // Get clerk_user_id from profiles table
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("clerk_user_id")
+        .eq("email", userEmail)
+        .single();
+
+      if (profileError || !profile) {
+        throw new Error(
+          "Unable to find your profile. Please ensure you're properly registered."
+        );
+      }
+
+      // Send request directly to webhook
+      const response = await fetch(
+        "https://iamgaazicom.app.n8n.cloud/webhook-test/youtube-to-blog",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            youtubeUrl: url.trim(),
+            clerk_user_id: profile.clerk_user_id,
+            timestamp: new Date().toISOString(),
+            userId: user?.id,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to send request: ${response.status} ${response.statusText}`
+        );
+      }
+
+      // If we get here, the request was successful
+      setSuccess(true);
+      setUrl(""); // Clear the form
+
+      // Show success message
+      setTimeout(() => {
+        setSuccess(false);
+      }, 5000);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "An unexpected error occurred"
+      );
+    } finally {
       setLoading(false);
-      alert("Conversion feature coming soon!");
-    }, 2000);
+    }
   };
 
   return (
@@ -23,16 +97,66 @@ export default function ConvertPage() {
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-2xl font-semibold text-white/92 mb-2">
-            Convert Video to Blog
+            Submit Video for Processing
           </h1>
           <p className="text-[14px] text-white/64">
-            Paste a YouTube URL to get started
+            Paste a YouTube URL to send for processing
           </p>
         </div>
 
-        {/* Conversion Form */}
+        {/* Success Message */}
+        {success && (
+          <div className="mb-6 p-4 bg-[#0ea371]/10 border border-[#0ea371]/20 rounded-md">
+            <div className="flex items-center gap-3">
+              <svg
+                className="w-5 h-5 text-[#0ea371] flex-shrink-0"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <div>
+                <p className="text-[13px] font-medium text-[#0ea371]">
+                  Request sent successfully!
+                </p>
+                <p className="text-[12px] text-white/64">
+                  Your request has been sent to our processing system.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-md">
+            <div className="flex items-center gap-3">
+              <svg
+                className="w-5 h-5 text-red-400 flex-shrink-0"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <div>
+                <p className="text-[13px] font-medium text-red-400">Error</p>
+                <p className="text-[12px] text-white/64">{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Submit Form */}
         <div className="bg-[#1d2025] border border-gray-400/50 rounded-md p-6 mb-8">
-          <form onSubmit={handleConvert} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label
                 htmlFor="url"
@@ -51,10 +175,10 @@ export default function ConvertPage() {
               />
             </div>
 
-            <div className="bg-[#8952e0]/5 border border-[#8952e0]/20 rounded-md p-4">
+            <div className="bg-[#e47c23]/5 border border-[#e47c23]/20 rounded-md p-4">
               <div className="flex gap-3">
                 <svg
-                  className="w-5 h-5 text-[#8952e0] flex-shrink-0 mt-0.5"
+                  className="w-5 h-5 text-[#e47c23] flex-shrink-0 mt-0.5"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -78,7 +202,7 @@ export default function ConvertPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full px-6 py-2.5 bg-[#8952e0] hover:bg-[#7543c9] disabled:opacity-50 disabled:cursor-not-allowed rounded-md text-white text-[13px] font-semibold transition-colors"
+              className="w-full px-6 py-2.5 bg-[#e47c23] hover:bg-[#aa5e1b] disabled:opacity-50 disabled:cursor-not-allowed rounded-md text-white text-[13px] font-semibold transition-colors"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -101,10 +225,10 @@ export default function ConvertPage() {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  Converting...
+                  Creating...
                 </span>
               ) : (
-                "Convert to Blog Post"
+                "Create Blog"
               )}
             </button>
           </form>

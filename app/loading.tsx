@@ -6,7 +6,7 @@ export default function Loading() {
         <div className="relative w-24 h-24 mx-auto">
           <div className="absolute inset-0 rounded-full border-4 border-purple-500/20" />
           <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-purple-500 border-r-blue-500 animate-spin" />
-          <div className="absolute inset-4 rounded-full bg-gradient-to-br from-purple-500/20 to-blue-500/20 blur-xl" />
+          <div className="absolute inset-4 rounded-full bg-gradient-to-br from-orange-400/20 to-orange-600/20 blur-xl" />
         </div>
 
         {/* Loading Text */}

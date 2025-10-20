@@ -5,6 +5,8 @@ const isPublicRoute = createRouteMatcher([
   '/login(.*)',
   '/signup(.*)',
   '/api/webhooks(.*)',
+  '/api/analytics(.*)',  // Allow public access to analytics tracking
+  '/:slug',
 ]);
 
 export default clerkMiddleware(async (auth, request) => {

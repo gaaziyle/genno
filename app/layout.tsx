@@ -8,6 +8,10 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Genno - YouTube to Blog Converter",
   description: "Transform YouTube videos into engaging blog posts with AI",
+  icons: {
+    icon: "/genno-logo.png",
+    apple: "/genno-logo.png",
+  },
 };
 
 export default function RootLayout({

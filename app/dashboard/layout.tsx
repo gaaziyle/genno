@@ -1,8 +1,10 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
+import { useUser, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
+import gennoLogo from "@/app/genno-logo.png";
 
 export default function DashboardLayout({
   children,
@@ -11,6 +13,11 @@ export default function DashboardLayout({
 }) {
   const { user } = useUser();
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex">
@@ -19,20 +26,26 @@ export default function DashboardLayout({
         {/* Logo & User */}
         <div className="h-8 mb-4 flex items-center justify-between px-3">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-[#8952e0] rounded-md" />
+            <img
+              src={gennoLogo.src}
+              alt="Genno"
+              className="w-6 h-6 rounded-md"
+            />
             <span className="text-white/92 font-semibold">Genno</span>
           </div>
-          <div className="w-6 h-6 bg-gray-600 rounded-full overflow-hidden">
-            {user?.imageUrl ? (
-              <img
-                src={user.imageUrl}
-                alt={user.firstName || "User"}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-purple-500 to-blue-500" />
-            )}
-          </div>
+          {mounted && user && (
+            <div className="w-6 h-6 bg-gray-600 rounded-full overflow-hidden">
+              {user.imageUrl ? (
+                <img
+                  src={user.imageUrl}
+                  alt={user.firstName || "User"}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-[#e47c23] to-[#d66d1f]" />
+              )}
+            </div>
+          )}
         </div>
 
         {/* Search */}
@@ -91,6 +104,29 @@ export default function DashboardLayout({
               Dashboard
             </Link>
             <Link
+              href="/dashboard/analytics"
+              className={`flex items-center gap-2 px-2 py-2 rounded-md text-white/92 text-[13px] transition-colors ${
+                pathname === "/dashboard/analytics"
+                  ? "bg-white/4 hover:bg-white/6"
+                  : "hover:bg-white/4"
+              }`}
+            >
+              <svg
+                className="w-4 h-4 opacity-80"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                />
+              </svg>
+              Analytics
+            </Link>
+            <Link
               href="/dashboard/convert"
               className={`flex items-center gap-2 px-2 py-2 rounded-md text-white/92 text-[13px] transition-colors ${
                 pathname === "/dashboard/convert"
@@ -113,10 +149,33 @@ export default function DashboardLayout({
               </svg>
               Convert Video
               {pathname !== "/dashboard/convert" && (
-                <span className="ml-auto bg-white/16 px-1.5 py-0.5 rounded text-[10px] text-white/92 font-bold">
+                <span className="ml-auto bg-[#e47c23] px-1.5 py-0.5 rounded text-[10px] text-white font-bold">
                   NEW
                 </span>
               )}
+            </Link>
+            <Link
+              href="/dashboard/blogs"
+              className={`flex items-center gap-2 px-2 py-2 rounded-md text-white/92 text-[13px] transition-colors ${
+                pathname?.startsWith("/dashboard/blogs")
+                  ? "bg-white/4 hover:bg-white/6"
+                  : "hover:bg-white/4"
+              }`}
+            >
+              <svg
+                className="w-4 h-4 opacity-80"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
+                />
+              </svg>
+              My Blogs
             </Link>
           </div>
 
@@ -127,7 +186,7 @@ export default function DashboardLayout({
             </div>
             <div className="space-y-0.5">
               <div className="flex items-center gap-2 px-2 py-2 rounded-md text-white/92 text-[13px] hover:bg-white/4 transition-colors cursor-pointer">
-                <div className="w-2 h-2 rounded-full bg-[#8952e0]" />
+                <div className="w-2 h-2 rounded-full bg-[#e47c23]" />
                 <span>Videos</span>
                 <span className="ml-auto text-[11px] text-white/60">0</span>
               </div>
@@ -161,6 +220,43 @@ export default function DashboardLayout({
             </button>
           </div>
         </nav>
+
+        {/* User Profile - Bottom of Sidebar */}
+        <div className="px-3 pb-3">
+          <div className="pt-3 border-t border-gray-400/50">
+            <div className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-white/4 transition-colors">
+              {mounted ? (
+                <UserButton
+                  appearance={{
+                    elements: {
+                      avatarBox: "w-8 h-8",
+                      userButtonPopoverCard: "bg-[#1d2025]",
+                      userButtonPopoverActionButton:
+                        "text-white/92 hover:bg-white/4",
+                      userButtonPopoverActionButtonText: "text-white/92",
+                      userButtonPopoverFooter: "hidden",
+                    },
+                  }}
+                  afterSignOutUrl="/"
+                />
+              ) : (
+                <div className="w-8 h-8 bg-gray-600 rounded-full animate-pulse" />
+              )}
+              {mounted && user && (
+                <div className="flex-1 overflow-hidden">
+                  <div className="text-[13px] text-white/92 font-medium truncate">
+                    {user.firstName && user.lastName
+                      ? `${user.firstName} ${user.lastName}`
+                      : user.username || "User"}
+                  </div>
+                  <div className="text-[11px] text-white/64 truncate">
+                    {user.primaryEmailAddress?.emailAddress || ""}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </aside>
 
       {/* Main Content Area */}
@@ -198,33 +294,10 @@ export default function DashboardLayout({
             </a>
             <a
               href="#"
-              className="ml-2 px-3 py-1.5 bg-[#8952e0] hover:bg-[#7543c9] rounded-md text-white text-[13px] font-semibold transition-colors"
+              className="ml-2 px-3 py-1.5 bg-[#e47c23] hover:bg-[#d66d1f] rounded-md text-white text-[13px] font-semibold transition-colors"
             >
               Upgrade
             </a>
-          </div>
-
-          <div className="border-t border-gray-400/50 px-4 py-2 flex items-center gap-2">
-            <div className="flex rounded-md border border-gray-400/50 overflow-hidden">
-              <button className="px-2.5 py-1 text-[13px] text-white/64 hover:bg-white/4 transition-colors">
-                1d
-              </button>
-              <button className="px-2.5 py-1 text-[13px] text-white/64 hover:bg-white/4 transition-colors">
-                3d
-              </button>
-              <button className="px-2.5 py-1 text-[13px] text-white/64 hover:bg-white/4 transition-colors">
-                7d
-              </button>
-              <button className="px-2.5 py-1 text-[13px] bg-white/4 border-l border-r border-gray-400/50 text-white font-semibold">
-                30d
-              </button>
-              <button className="px-2.5 py-1 text-[13px] text-white/64 hover:bg-white/4 transition-colors">
-                Custom
-              </button>
-            </div>
-            <button className="px-2.5 py-1 border border-gray-400/50 rounded-md text-[12px] text-white/92 font-semibold hover:bg-white/4 transition-colors">
-              📅 18.09.2025 – 18.10.2025
-            </button>
           </div>
         </header>
 

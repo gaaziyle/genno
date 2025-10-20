@@ -6,10 +6,10 @@ export default function NotFound() {
       <div className="text-center space-y-8 px-4">
         {/* Animated 404 */}
         <div className="relative">
-          <h1 className="text-9xl font-bold bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent">
+          <h1 className="text-9xl font-bold bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
             404
           </h1>
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20 blur-3xl -z-10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-orange-400/20 to-orange-600/20 blur-3xl -z-10" />
         </div>
 
         {/* Message */}
@@ -25,7 +25,7 @@ export default function NotFound() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             href="/"
-            className="px-8 py-4 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 rounded-lg text-white font-semibold transition-all transform hover:scale-105"
+            className="px-8 py-4 bg-gradient-to-r from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700 rounded-lg text-white font-semibold transition-all transform hover:scale-105"
           >
             Back to Home
           </Link>
