@@ -53,7 +53,7 @@ export default function ConvertPage() {
 
       // Send request directly to webhook
       const response = await fetch(
-        "https://iamgaazicom.app.n8n.cloud/webhook-test/youtube-to-blog",
+        "https://iamgaazicom.app.n8n.cloud/webhook/youtube-to-blog",
         {
           method: "POST",
           headers: {
