@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
 
     // Get analytics for each blog
     const blogIds = publishedBlogs.map(blog => blog.id);
-    let summaryData = [];
+    let summaryData: any[] = [];
 
     if (blogIds.length > 0) {
       const { data: analyticsData, error: analyticsError } = await supabase
@@ -184,6 +184,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Analytics API error:', error);
-    return NextResponse.json({ error: 'Internal server error', details: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
   }
 }

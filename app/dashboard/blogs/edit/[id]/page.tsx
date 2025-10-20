@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { supabase, BlogPost } from "@/lib/supabase";
+import Image from "next/image";
 
 export default function EditBlogPage() {
   const params = useParams();
@@ -219,9 +220,11 @@ export default function EditBlogPage() {
             />
             {formData.thumbnail_url && (
               <div className="mt-4">
-                <img
+                <Image
                   src={formData.thumbnail_url}
                   alt="Thumbnail preview"
+                  width={320}
+                  height={180}
                   className="max-w-xs rounded border border-gray-400/50"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = "none";

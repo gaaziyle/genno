@@ -2,6 +2,7 @@
 
 import { useUser, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import gennoLogo from "@/app/genno-logo.png";
@@ -26,19 +27,23 @@ export default function DashboardLayout({
         {/* Logo & User */}
         <div className="h-8 mb-4 flex items-center justify-between px-3">
           <div className="flex items-center gap-2">
-            <img
-              src={gennoLogo.src}
+            <Image
+              src={gennoLogo}
               alt="Genno"
-              className="w-6 h-6 rounded-md"
+              width={24}
+              height={24}
+              className="rounded-md"
             />
             <span className="text-white/92 font-semibold">Genno</span>
           </div>
           {mounted && user && (
             <div className="w-6 h-6 bg-gray-600 rounded-full overflow-hidden">
               {user.imageUrl ? (
-                <img
+                <Image
                   src={user.imageUrl}
                   alt={user.firstName || "User"}
+                  width={24}
+                  height={24}
                   className="w-full h-full object-cover"
                 />
               ) : (

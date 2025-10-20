@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { supabase, BlogPost } from "@/lib/supabase";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function BlogViewPage() {
   const params = useParams();
@@ -124,8 +125,8 @@ export default function BlogViewPage() {
             Blog not found
           </h1>
           <p className="text-[14px] text-white/64 mb-6">
-            The blog you're looking for doesn't exist or you don't have access
-            to it.
+            The blog you&apos;re looking for doesn&apos;t exist or you
+            don&apos;t have access to it.
           </p>
           <Link
             href="/dashboard/blogs"
@@ -280,9 +281,11 @@ export default function BlogViewPage() {
         <article className="bg-[#1d2025] border border-gray-400/50 rounded-md p-8">
           {/* Thumbnail */}
           {blog.thumbnail_url && (
-            <img
+            <Image
               src={blog.thumbnail_url}
               alt={blog.title}
+              width={800}
+              height={256}
               className="w-full h-64 object-cover rounded-md mb-6"
             />
           )}

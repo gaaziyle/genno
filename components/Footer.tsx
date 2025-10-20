@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import gennoLogo from "@/app/genno-logo.png";
 export default function Footer() {
   return (
@@ -11,10 +12,12 @@ export default function Footer() {
               href="/"
               className="flex items-center gap-2 text-xl font-bold"
             >
-              <img
-                src={gennoLogo.src}
+              <Image
+                src={gennoLogo}
                 alt="Genno"
-                className="w-8 h-8 rounded-lg"
+                width={32}
+                height={32}
+                className="rounded-lg"
               />
               <span className="bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
                 Genno

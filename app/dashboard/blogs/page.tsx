@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { supabase, BlogPost } from "@/lib/supabase";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function BlogsPage() {
   const { user } = useUser();
@@ -302,10 +303,12 @@ export default function BlogsPage() {
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-3">
                           {blog.thumbnail_url && (
-                            <img
+                            <Image
                               src={blog.thumbnail_url}
                               alt={blog.title}
-                              className="w-16 h-10 object-cover rounded"
+                              width={64}
+                              height={40}
+                              className="object-cover rounded"
                             />
                           )}
                           <div>

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase, BlogPost } from "@/lib/supabase";
 import Link from "next/link";
+import Image from "next/image";
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
 import gennoLogo from "@/app/genno-logo.png";
 import Footer from "@/components/Footer";
@@ -254,8 +255,8 @@ export default function PublicBlogPage() {
             Blog not found
           </h1>
           <p className="text-[16px] text-white/64 mb-8">
-            The blog you're looking for doesn't exist or hasn't been published
-            yet.
+            The blog you&apos;re looking for doesn&apos;t exist or hasn&apos;t
+            been published yet.
           </p>
           <Link
             href="/"
@@ -274,10 +275,12 @@ export default function PublicBlogPage() {
       <header className="w-full h-16 align-center flex items-center justify-center sticky top-0 z-50 backdrop-blur-xl bg-black/20 border-b border-white/10">
         <div className="container mx-auto px-4 py-2 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <img
-              src={gennoLogo.src}
+            <Image
+              src={gennoLogo}
               alt="Genno"
-              className="w-12 h-12 rounded-md"
+              width={48}
+              height={48}
+              className="rounded-md"
             />
             <span className="text-xl bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent font-semibold">
               Genno
@@ -350,9 +353,11 @@ export default function PublicBlogPage() {
         <article>
           {/* Thumbnail */}
           {blog.thumbnail_url && (
-            <img
+            <Image
               src={blog.thumbnail_url}
               alt={blog.title}
+              width={800}
+              height={384}
               className="w-full h-96 object-cover rounded-lg mb-8 shadow-2xl"
             />
           )}
@@ -369,9 +374,11 @@ export default function PublicBlogPage() {
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-3">
                   {authorInfo.imageUrl ? (
-                    <img
+                    <Image
                       src={authorInfo.imageUrl}
                       alt={`${authorInfo.first_name} ${authorInfo.lastName}`}
+                      width={40}
+                      height={40}
                       className="w-10 h-10 rounded-full object-cover border-2 border-white/10"
                     />
                   ) : (
