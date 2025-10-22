@@ -18,7 +18,7 @@ export default function BlogViewPage() {
     if (user && params.slug) {
       fetchBlog();
     }
-  }, [user, params.slug]);
+  }, [user, params.slug]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchBlog = async () => {
     if (!user) return;

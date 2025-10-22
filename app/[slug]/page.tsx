@@ -29,7 +29,7 @@ export default function PublicBlogPage() {
     if (params.slug) {
       fetchBlog();
     }
-  }, [params.slug]);
+  }, [params.slug]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Track blog visit when blog loads
   useEffect(() => {

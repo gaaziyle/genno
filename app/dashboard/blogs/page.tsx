@@ -16,7 +16,7 @@ export default function BlogsPage() {
     if (user) {
       fetchBlogs();
     }
-  }, [user, filter]);
+  }, [user, filter]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchBlogs = async () => {
     if (!user) return;

@@ -33,7 +33,7 @@ export default function DashboardLayout({
     if (user?.id) {
       fetchUserProfile();
     }
-  }, [user?.id]);
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchUserProfile = async () => {
     if (!user?.id) return;

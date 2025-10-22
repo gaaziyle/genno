@@ -9,86 +9,40 @@ export default function CareersPage() {
       department: "Engineering",
       location: "Remote / San Francisco",
       type: "Full-time",
-      description: "Join our AI team to develop cutting-edge natural language processing models for content generation.",
-      requirements: [
-        "5+ years experience in machine learning",
-        "Strong background in NLP and transformer models",
-        "Experience with Python, TensorFlow/PyTorch",
-        "PhD in Computer Science or related field preferred"
-      ]
+      description: "Join our AI team to develop cutting-edge algorithms for content transformation and natural language processing.",
     },
     {
-      title: "Full Stack Developer",
+      title: "Frontend Developer",
       department: "Engineering",
-      location: "Remote / New York",
+      location: "Remote",
       type: "Full-time",
-      description: "Build and maintain our web application, working on both frontend and backend systems.",
-      requirements: [
-        "3+ years experience with React and Node.js",
-        "Experience with TypeScript and Next.js",
-        "Knowledge of database design and optimization",
-        "Familiarity with cloud platforms (AWS, GCP)"
-      ]
+      description: "Build beautiful, responsive user interfaces that make AI-powered content creation accessible to everyone.",
     },
     {
       title: "Product Designer",
       department: "Design",
-      location: "Remote / Los Angeles",
+      location: "Remote / New York",
       type: "Full-time",
-      description: "Design intuitive user experiences for our AI-powered content creation platform.",
-      requirements: [
-        "4+ years experience in product design",
-        "Strong portfolio showcasing UX/UI design",
-        "Experience with Figma and design systems",
-        "Understanding of user research methodologies"
-      ]
+      description: "Design intuitive experiences that help creators transform their content effortlessly.",
     },
     {
       title: "Content Marketing Manager",
       department: "Marketing",
       location: "Remote",
       type: "Full-time",
-      description: "Lead our content marketing strategy and help creators discover the power of AI-assisted content creation.",
-      requirements: [
-        "3+ years experience in content marketing",
-        "Strong writing and storytelling skills",
-        "Experience with SEO and content analytics",
-        "Background in creator economy preferred"
-      ]
-    }
+      description: "Lead our content strategy and help creators discover the power of AI-driven content transformation.",
+    },
   ];
 
   const benefits = [
-    {
-      icon: "💰",
-      title: "Competitive Salary",
-      description: "Market-rate compensation with equity options"
-    },
-    {
-      icon: "🏥",
-      title: "Health & Wellness",
-      description: "Comprehensive health, dental, and vision insurance"
-    },
-    {
-      icon: "🌍",
-      title: "Remote First",
-      description: "Work from anywhere with flexible hours"
-    },
-    {
-      icon: "📚",
-      title: "Learning Budget",
-      description: "$2,000 annual budget for courses and conferences"
-    },
-    {
-      icon: "🏖️",
-      title: "Unlimited PTO",
-      description: "Take the time you need to recharge"
-    },
-    {
-      icon: "💻",
-      title: "Equipment",
-      description: "Top-tier laptop and home office setup"
-    }
+    "Competitive salary and equity",
+    "Comprehensive health, dental, and vision insurance",
+    "Flexible work arrangements",
+    "Unlimited PTO policy",
+    "Professional development budget",
+    "Latest tech equipment",
+    "Team retreats and events",
+    "Wellness stipend",
   ];
 
   return (
@@ -122,90 +76,64 @@ export default function CareersPage() {
       </header>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Hero Section */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold text-white/92 mb-6">
+          <h1 className="text-4xl md:text-5xl font-bold text-white/92 mb-4">
             Join Our Team
           </h1>
-          <p className="text-xl text-white/64 max-w-3xl mx-auto leading-relaxed">
-            Help us revolutionize content creation with AI. We're looking for passionate individuals who want to make a real impact in the creator economy.
+          <p className="text-xl text-white/64 max-w-2xl mx-auto">
+            Help us revolutionize content creation with AI. We&apos;re looking for passionate individuals who want to make a real impact.
           </p>
         </div>
 
         {/* Culture Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+        <section className="mb-16">
           <div className="bg-[#1d2025] border border-gray-400/50 rounded-lg p-8">
-            <h2 className="text-2xl font-semibold text-white/92 mb-4">Our Culture</h2>
-            <p className="text-white/80 leading-relaxed mb-6">
-              At Genno, we believe in building a diverse, inclusive, and collaborative environment where everyone can do their best work. We're a remote-first company that values results over hours worked.
-            </p>
-            <ul className="space-y-2 text-white/80">
-              <li className="flex items-center gap-2">
-                <span className="text-[#0ea371]">✓</span>
-                Transparent communication and feedback
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-[#0ea371]">✓</span>
-                Continuous learning and growth
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-[#0ea371]">✓</span>
-                Work-life balance and flexibility
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-[#0ea371]">✓</span>
-                Innovation and experimentation
-              </li>
-            </ul>
-          </div>
-
-          <div className="bg-[#1d2025] border border-gray-400/50 rounded-lg p-8">
-            <h2 className="text-2xl font-semibold text-white/92 mb-4">Why Genno?</h2>
-            <p className="text-white/80 leading-relaxed mb-6">
-              Join a fast-growing startup that's making a real difference in how content creators work. You'll have the opportunity to shape the future of AI-powered content creation.
-            </p>
-            <ul className="space-y-2 text-white/80">
-              <li className="flex items-center gap-2">
-                <span className="text-[#8952e0]">→</span>
-                Work on cutting-edge AI technology
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-[#8952e0]">→</span>
-                Direct impact on product and company direction
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-[#8952e0]">→</span>
-                Collaborate with world-class talent
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-[#8952e0]">→</span>
-                Competitive equity and growth opportunities
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Benefits Section */}
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold text-white/92 mb-8 text-center">Benefits & Perks</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {benefits.map((benefit, index) => (
-              <div key={index} className="bg-[#1d2025] border border-gray-400/50 rounded-lg p-6">
-                <div className="text-3xl mb-3">{benefit.icon}</div>
-                <h3 className="text-lg font-semibold text-white/92 mb-2">{benefit.title}</h3>
-                <p className="text-white/64 text-sm">{benefit.description}</p>
+            <h2 className="text-2xl font-semibold text-white/92 mb-6">Why Work at Genno?</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-[#8952e0]/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-[#8952e0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-white/92 mb-2">Innovation First</h3>
+                <p className="text-white/64">
+                  Work on cutting-edge AI technology that&apos;s shaping the future of content creation.
+                </p>
               </div>
-            ))}
+              <div className="text-center">
+                <div className="w-16 h-16 bg-[#0ea371]/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-[#0ea371]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-white/92 mb-2">Great Team</h3>
+                <p className="text-white/64">
+                  Collaborate with talented individuals who are passionate about solving real problems.
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-[#e47c23]/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-[#e47c23]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-white/92 mb-2">Growth Focused</h3>
+                <p className="text-white/64">
+                  Accelerate your career with opportunities to learn, lead, and make an impact.
+                </p>
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
 
         {/* Open Positions */}
-        <div className="mb-16">
+        <section className="mb-16">
           <h2 className="text-3xl font-bold text-white/92 mb-8 text-center">Open Positions</h2>
           <div className="space-y-6">
             {openPositions.map((position, index) => (
-              <div key={index} className="bg-[#1d2025] border border-gray-400/50 rounded-lg p-8">
-                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-6">
+              <div key={index} className="bg-[#1d2025] border border-gray-400/50 rounded-lg p-6 hover:border-[#8952e0]/50 transition-colors">
+                <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
                   <div>
                     <h3 className="text-xl font-semibold text-white/92 mb-2">{position.title}</h3>
                     <div className="flex flex-wrap gap-4 text-sm text-white/64">
@@ -230,47 +158,87 @@ export default function CareersPage() {
                       </span>
                     </div>
                   </div>
-                  <button className="mt-4 lg:mt-0 px-6 py-2 bg-[#8952e0] hover:bg-[#7543c9] rounded-md text-white font-semibold transition-colors">
+                  <button className="mt-4 md:mt-0 px-6 py-2 bg-[#8952e0] hover:bg-[#7543c9] rounded-md text-white font-semibold transition-colors">
                     Apply Now
                   </button>
                 </div>
-                
-                <p className="text-white/80 mb-4">{position.description}</p>
-                
-                <div>
-                  <h4 className="text-white/92 font-medium mb-2">Requirements:</h4>
-                  <ul className="space-y-1">
-                    {position.requirements.map((req, reqIndex) => (
-                      <li key={reqIndex} className="flex items-start gap-2 text-white/64 text-sm">
-                        <span className="text-[#0ea371] mt-1">•</span>
-                        {req}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <p className="text-white/80">{position.description}</p>
               </div>
             ))}
           </div>
-        </div>
+        </section>
 
-        {/* No Open Positions Message */}
-        <div className="bg-[#1d2025] border border-gray-400/50 rounded-lg p-8 text-center mb-16">
-          <h3 className="text-xl font-semibold text-white/92 mb-4">Don't See a Perfect Fit?</h3>
-          <p className="text-white/64 mb-6">
-            We're always looking for talented individuals to join our team. Send us your resume and tell us how you'd like to contribute to Genno's mission.
+        {/* Benefits */}
+        <section className="mb-16">
+          <div className="bg-[#1d2025] border border-gray-400/50 rounded-lg p-8">
+            <h2 className="text-2xl font-semibold text-white/92 mb-6 text-center">Benefits & Perks</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {benefits.map((benefit, index) => (
+                <div key={index} className="flex items-center gap-3">
+                  <svg className="w-5 h-5 text-[#0ea371] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-white/80">{benefit}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Application Process */}
+        <section className="mb-16">
+          <div className="bg-[#1d2025] border border-gray-400/50 rounded-lg p-8">
+            <h2 className="text-2xl font-semibold text-white/92 mb-6 text-center">Our Hiring Process</h2>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-[#8952e0] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-white font-bold">1</span>
+                </div>
+                <h3 className="text-lg font-medium text-white/92 mb-2">Application</h3>
+                <p className="text-white/64 text-sm">Submit your application and we&apos;ll review it within 48 hours.</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-[#8952e0] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-white font-bold">2</span>
+                </div>
+                <h3 className="text-lg font-medium text-white/92 mb-2">Phone Screen</h3>
+                <p className="text-white/64 text-sm">A brief call to discuss your background and interest in the role.</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-[#8952e0] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-white font-bold">3</span>
+                </div>
+                <h3 className="text-lg font-medium text-white/92 mb-2">Technical Interview</h3>
+                <p className="text-white/64 text-sm">Demonstrate your skills through practical exercises and discussions.</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-[#8952e0] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-white font-bold">4</span>
+                </div>
+                <h3 className="text-lg font-medium text-white/92 mb-2">Team Interview</h3>
+                <p className="text-white/64 text-sm">Meet the team and learn more about our culture and values.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section className="text-center bg-gradient-to-r from-[#8952e0]/10 to-[#0ea371]/10 border border-[#8952e0]/20 rounded-lg p-12">
+          <h2 className="text-3xl font-bold text-white/92 mb-4">
+            Don&apos;t See the Right Role?
+          </h2>
+          <p className="text-xl text-white/64 mb-8 max-w-2xl mx-auto">
+            We&apos;re always looking for talented individuals. Send us your resume and tell us how you&apos;d like to contribute to Genno&apos;s mission.
           </p>
           <Link
             href="/contact"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[#0ea371] hover:bg-[#0c8a5f] rounded-md text-white font-semibold transition-colors"
+            className="px-8 py-3 bg-[#8952e0] hover:bg-[#7543c9] rounded-md text-white font-semibold transition-colors"
           >
             Get in Touch
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
           </Link>
-        </div>
+        </section>
 
-        <div className="text-center">
+        <div className="mt-16 text-center">
           <Link
             href="/"
             className="inline-flex items-center gap-2 px-6 py-3 bg-[#8952e0] hover:bg-[#7543c9] rounded-md text-white font-semibold transition-colors"
