@@ -21,8 +21,8 @@ export interface BlogPost {
   clerk_user_id?: string;
   created_at: string;
   updated_at: string;
-  published: boolean;
-  is_publish?: boolean;
+  published?: boolean; // Legacy field
+  is_publish?: boolean; // Current field
   slug?: string;
   tags?: string[];
 }

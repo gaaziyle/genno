@@ -5,7 +5,15 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 import gennoLogo from "@/app/genno-logo.png";
+
+interface UserProfile {
+  first_name?: string;
+  last_name?: string;
+  username?: string;
+  profile_image_url?: string;
+}
 
 export default function DashboardLayout({
   children,
@@ -15,10 +23,38 @@ export default function DashboardLayout({
   const { user } = useUser();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchUserProfile();
+    }
+  }, [user?.id]);
+
+  const fetchUserProfile = async () => {
+    if (!user?.id) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("first_name, last_name, username, profile_image_url")
+        .eq("clerk_user_id", user.id)
+        .single();
+
+      if (error) {
+        console.error("Error fetching user profile:", error);
+        return;
+      }
+
+      setUserProfile(data);
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex">
@@ -38,10 +74,10 @@ export default function DashboardLayout({
           </div>
           {mounted && user && (
             <div className="w-6 h-6 bg-gray-600 rounded-full overflow-hidden">
-              {user.imageUrl ? (
+              {(userProfile?.profile_image_url || user?.imageUrl) ? (
                 <Image
-                  src={user.imageUrl}
-                  alt={user.firstName || "User"}
+                  src={userProfile?.profile_image_url || user?.imageUrl || ""}
+                  alt={userProfile?.first_name || user?.firstName || "User"}
                   width={24}
                   height={24}
                   className="w-full h-full object-cover"
@@ -182,6 +218,29 @@ export default function DashboardLayout({
               </svg>
               My Blogs
             </Link>
+            <Link
+              href="/pricing"
+              className={`flex items-center gap-2 px-2 py-2 rounded-md text-white/92 text-[13px] transition-colors ${
+                pathname === "/pricing"
+                  ? "bg-white/4 hover:bg-white/6"
+                  : "hover:bg-white/4"
+              }`}
+            >
+              <svg
+                className="w-4 h-4 opacity-80"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              Pricing
+            </Link>
           </div>
 
           {/* Tags Section */}
@@ -250,7 +309,9 @@ export default function DashboardLayout({
               {mounted && user && (
                 <div className="flex-1 overflow-hidden">
                   <div className="text-[13px] text-white/92 font-medium truncate">
-                    {user.firstName && user.lastName
+                    {userProfile?.first_name && userProfile?.last_name
+                      ? `${userProfile.first_name} ${userProfile.last_name}`
+                      : userProfile?.username || user.firstName && user.lastName
                       ? `${user.firstName} ${user.lastName}`
                       : user.username || "User"}
                   </div>
@@ -297,12 +358,12 @@ export default function DashboardLayout({
                 <path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
               </svg>
             </a>
-            <a
-              href="#"
+            <Link
+              href="/pricing"
               className="ml-2 px-3 py-1.5 bg-[#e47c23] hover:bg-[#d66d1f] rounded-md text-white text-[13px] font-semibold transition-colors"
             >
               Upgrade
-            </a>
+            </Link>
           </div>
         </header>
 

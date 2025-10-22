@@ -15,13 +15,24 @@ export async function GET(request: NextRequest) {
     console.log('User ID type:', typeof userId);
     console.log('User ID length:', userId?.length);
 
+    // Helper function to generate slug from title
+    const generateSlug = (title: string): string => {
+      return title
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+        .replace(/\s+/g, '-') // Replace spaces with hyphens
+        .replace(/-+/g, '-') // Replace multiple hyphens with single
+        .trim()
+        .substring(0, 50); // Limit length
+    };
+
     const { searchParams } = new URL(request.url);
     const days = parseInt(searchParams.get('days') || '30');
 
     // Get user's blogs first - let's check both published and unpublished
     const { data: userBlogs, error: blogsError } = await supabase
       .from('blogs')
-      .select('id, title, clerk_user_id, is_publish')
+      .select('id, title, slug, clerk_user_id, is_publish, created_at')
       .eq('clerk_user_id', userId);
 
     console.log('All user blogs:', userBlogs);
@@ -96,10 +107,16 @@ export async function GET(request: NextRequest) {
             last_visit: null
           };
           
+          // Generate slug if it doesn't exist
+          const slug = blog.slug || generateSlug(blog.title);
+          
           return {
             blog_id: blog.id,
             title: blog.title,
+            slug: slug,
             clerk_user_id: blog.clerk_user_id,
+            is_publish: blog.is_publish,
+            created_at: blog.created_at,
             unique_visitors: analytics.unique_visitors.size,
             visitors_last_7_days: analytics.visitors_last_7_days.size,
             visitors_last_30_days: analytics.visitors_last_30_days.size,

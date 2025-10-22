@@ -42,7 +42,7 @@ export default function EditBlogPage() {
       }
 
       // Check if the user owns this blog
-      if (user && data.user_id !== user.id) {
+      if (user && data.clerk_user_id !== user.id) {
         alert("You don't have permission to edit this blog");
         router.push("/dashboard/blogs");
         return;
@@ -55,7 +55,7 @@ export default function EditBlogPage() {
         youtube_url: data.youtube_url || "",
         thumbnail_url: data.thumbnail_url || "",
         tags: data.tags ? data.tags.join(", ") : "",
-        published: data.published,
+        published: data.is_publish || false,
       });
     } catch (error) {
       console.error("Error:", error);
@@ -85,7 +85,7 @@ export default function EditBlogPage() {
           excerpt: formData.excerpt || null,
           youtube_url: formData.youtube_url || null,
           thumbnail_url: formData.thumbnail_url || null,
-          published: formData.published,
+          is_publish: formData.published,
           tags: tagsArray.length > 0 ? tagsArray : null,
         })
         .eq("id", params.id);

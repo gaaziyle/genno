@@ -63,9 +63,12 @@ export default function AnalyticsPage() {
       const response = await fetch("/api/analytics/data?days=30");
       if (response.ok) {
         const data = await response.json();
+        console.log("Analytics data received:", data);
         setAnalyticsData(data);
       } else {
-        console.error("Failed to fetch analytics data");
+        console.error("Failed to fetch analytics data", response.status, response.statusText);
+        const errorText = await response.text();
+        console.error("Error response:", errorText);
       }
     } catch (error) {
       console.error("Error fetching analytics data:", error);

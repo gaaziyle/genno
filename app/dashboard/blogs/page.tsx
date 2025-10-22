@@ -27,17 +27,17 @@ export default function BlogsPage() {
       const clerkUserId = user.id;
       console.log("Fetching blogs for Clerk user ID:", clerkUserId);
 
-      // Fetch blogs using the user_id column (which stores clerk_user_id)
+      // Fetch blogs using the clerk_user_id column
       let query = supabase
         .from("blogs")
         .select("*")
-        .eq("user_id", clerkUserId)
+        .eq("clerk_user_id", clerkUserId)
         .order("created_at", { ascending: false });
 
       if (filter === "published") {
-        query = query.eq("published", true);
+        query = query.eq("is_publish", true);
       } else if (filter === "drafts") {
-        query = query.eq("published", false);
+        query = query.eq("is_publish", false);
       }
 
       const { data, error } = await query;
@@ -52,8 +52,7 @@ export default function BlogsPage() {
         });
         console.error("Full error object:", JSON.stringify(error, null, 2));
         alert(
-          `Error fetching blogs: ${
-            error.message || "Unknown error"
+          `Error fetching blogs: ${error.message || "Unknown error"
           }. Check RLS policies in Supabase.`
         );
         return;
@@ -194,31 +193,28 @@ export default function BlogsPage() {
         <div className="mb-6 flex items-center gap-2">
           <button
             onClick={() => setFilter("all")}
-            className={`px-4 py-2 rounded-md text-[13px] font-medium transition-colors ${
-              filter === "all"
-                ? "bg-white/8 text-white/92"
-                : "text-white/64 hover:bg-white/4"
-            }`}
+            className={`px-4 py-2 rounded-md text-[13px] font-medium transition-colors ${filter === "all"
+              ? "bg-white/8 text-white/92"
+              : "text-white/64 hover:bg-white/4"
+              }`}
           >
             All ({stats.total})
           </button>
           <button
             onClick={() => setFilter("published")}
-            className={`px-4 py-2 rounded-md text-[13px] font-medium transition-colors ${
-              filter === "published"
-                ? "bg-white/8 text-white/92"
-                : "text-white/64 hover:bg-white/4"
-            }`}
+            className={`px-4 py-2 rounded-md text-[13px] font-medium transition-colors ${filter === "published"
+              ? "bg-white/8 text-white/92"
+              : "text-white/64 hover:bg-white/4"
+              }`}
           >
             Published ({stats.published})
           </button>
           <button
             onClick={() => setFilter("drafts")}
-            className={`px-4 py-2 rounded-md text-[13px] font-medium transition-colors ${
-              filter === "drafts"
-                ? "bg-white/8 text-white/92"
-                : "text-white/64 hover:bg-white/4"
-            }`}
+            className={`px-4 py-2 rounded-md text-[13px] font-medium transition-colors ${filter === "drafts"
+              ? "bg-white/8 text-white/92"
+              : "text-white/64 hover:bg-white/4"
+              }`}
           >
             Drafts ({stats.drafts})
           </button>
@@ -325,16 +321,14 @@ export default function BlogsPage() {
                       </td>
                       <td className="px-4 py-4">
                         <span
-                          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-medium ${
-                            blog.is_publish
-                              ? "bg-[#0ea371]/10 text-[#9fe3cd]"
-                              : "bg-white/8 text-white/64"
-                          }`}
+                          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-medium ${blog.is_publish
+                            ? "bg-[#0ea371]/10 text-[#9fe3cd]"
+                            : "bg-white/8 text-white/64"
+                            }`}
                         >
                           <span
-                            className={`w-1.5 h-1.5 rounded-full ${
-                              blog.is_publish ? "bg-[#0ea371]" : "bg-white/40"
-                            }`}
+                            className={`w-1.5 h-1.5 rounded-full ${blog.is_publish ? "bg-[#0ea371]" : "bg-white/40"
+                              }`}
                           />
                           {blog.is_publish ? "Published" : "Draft"}
                         </span>
@@ -424,7 +418,7 @@ export default function BlogsPage() {
                                 strokeLinejoin="round"
                                 strokeWidth={2}
                                 d={
-                                  blog.published
+                                  blog.is_publish
                                     ? "M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
                                     : "M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                                 }

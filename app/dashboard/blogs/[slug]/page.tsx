@@ -25,37 +25,17 @@ export default function BlogViewPage() {
 
     setLoading(true);
     try {
-      // Get user's clerk_user_id from profiles
-      const userEmail = user.primaryEmailAddress?.emailAddress;
-      if (!userEmail) {
-        console.error("User email not found");
-        setLoading(false);
-        return;
-      }
-
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("clerk_user_id")
-        .eq("email", userEmail)
-        .single();
-
-      if (profileError || !profile) {
-        console.error("Error fetching profile:", profileError);
-        setLoading(false);
-        return;
-      }
-
       // Check if params.slug is a UUID (for backward compatibility with old links)
       const isUUID =
         /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
           params.slug as string
         );
 
-      // Fetch blog by slug or id
+      // Fetch blog by slug or id, ensuring it belongs to the current user
       let query = supabase
         .from("blogs")
         .select("*")
-        .eq("clerk_user_id", profile.clerk_user_id);
+        .eq("clerk_user_id", user.id);
 
       if (isUUID) {
         // If it's a UUID, try matching by ID or slug

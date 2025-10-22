@@ -72,7 +72,7 @@ export default function Header() {
                 How it Works
               </Link>
               <Link
-                href="#pricing"
+                href="/pricing"
                 className="text-gray-300 hover:text-white transition-colors"
               >
                 Pricing
