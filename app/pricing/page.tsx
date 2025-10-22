@@ -3,77 +3,77 @@
 import { useState } from "react";
 import Link from "next/link";
 
+interface PricingPlan {
+  name: string;
+  description: string;
+  price: {
+    monthly: number | string;
+    yearly: number | string;
+  };
+  credits: number | string;
+  features: string[];
+  limitations?: string[];
+  buttonText: string;
+  popular: boolean;
+}
+
 export default function PricingPage() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
 
-  const plans = [
+  const plans: PricingPlan[] = [
     {
-      name: "Free",
-      description: "Perfect for getting started",
+      name: "Starter",
+      description: "Perfect for trying out Genno",
       price: {
         monthly: 0,
         yearly: 0,
       },
-      credits: 3,
+      credits: 5,
       features: [
-        "3 blog credits per month",
-        "YouTube to blog conversion",
-        "Basic analytics",
+        "5 videos per month",
+        "Basic transcription",
+        "Markdown export",
         "Community support",
-        "Standard templates",
       ],
-      limitations: [
-        "Limited customization",
-        "Basic export options",
-      ],
-      buttonText: "Get Started Free",
-      buttonStyle: "bg-white/8 hover:bg-white/12 text-white/92",
+      buttonText: "Get Started",
       popular: false,
     },
     {
-      name: "Starter",
-      description: "For content creators and bloggers",
+      name: "Pro",
+      description: "Best for content creators",
       price: {
-        monthly: 19,
-        yearly: 182, // 20% discount: 19 * 12 * 0.8 = 182.4 rounded to 182
+        monthly: 29,
+        yearly: 278, // 20% discount: 29 * 12 * 0.8 = 278.4 rounded to 278
       },
-      credits: 100,
+      credits: 50,
       features: [
-        "100 blog credits per month",
-        "YouTube to blog conversion",
-        "Advanced analytics",
+        "50 videos per month",
+        "Advanced AI transcription",
+        "All export formats",
         "Priority support",
-        "Custom templates",
-        "SEO optimization",
-        "Social media integration",
-        "Export to multiple formats",
+        "Custom formatting",
+        "API access",
       ],
       buttonText: "Start Free Trial",
-      buttonStyle: "bg-[#8952e0] hover:bg-[#7543c9] text-white",
       popular: true,
     },
     {
-      name: "Team",
+      name: "Enterprise",
       description: "For teams and agencies",
       price: {
-        monthly: 49,
-        yearly: 470, // 20% discount: 49 * 12 * 0.8 = 470.4 rounded to 470
+        monthly: "Custom",
+        yearly: "Custom",
       },
-      credits: 500,
+      credits: "Unlimited",
       features: [
-        "500 blog credits per month",
-        "YouTube to blog conversion",
-        "Advanced analytics & reporting",
-        "24/7 priority support",
-        "Custom branding",
-        "Team collaboration tools",
-        "API access",
-        "White-label options",
+        "Unlimited videos",
+        "Dedicated AI model",
+        "White-label solution",
+        "24/7 premium support",
         "Custom integrations",
-        "Dedicated account manager",
+        "SLA guarantee",
       ],
-      buttonText: "Start Free Trial",
-      buttonStyle: "bg-[#0ea371] hover:bg-[#0c8a5f] text-white",
+      buttonText: "Contact Sales",
       popular: false,
     },
   ];
@@ -170,42 +170,52 @@ export default function PricingPage() {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 max-w-5xl mx-auto">
           {plans.map((plan, index) => (
             <div
               key={plan.name}
-              className={`relative bg-[#1d2025] border rounded-lg p-8 ${
+              className={`relative rounded-2xl p-8 ${
                 plan.popular
-                  ? "border-[#8952e0] ring-1 ring-[#8952e0]/20"
-                  : "border-gray-400/50"
+                  ? "bg-gradient-to-b from-[#ff6b35]/20 to-[#ff6b35]/5 border-2 border-[#ff6b35] transform scale-105"
+                  : "bg-[#1a1a1a] border border-gray-700"
               }`}
             >
               {plan.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="bg-[#8952e0] text-white text-sm font-semibold px-3 py-1 rounded-full">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                  <span className="bg-[#ff6b35] text-white text-sm font-semibold px-4 py-2 rounded-full">
                     Most Popular
                   </span>
                 </div>
               )}
 
               <div className="text-center mb-8">
-                <h3 className="text-xl font-semibold text-white/92 mb-2">
+                <h3 className="text-2xl font-bold text-white mb-2">
                   {plan.name}
                 </h3>
-                <p className="text-white/64 text-sm mb-4">{plan.description}</p>
+                <p className="text-gray-400 text-sm mb-6">{plan.description}</p>
                 
-                <div className="mb-4">
-                  <span className="text-4xl font-bold text-white/92">
-                    ${plan.price[billingCycle]}
-                  </span>
-                  {plan.price[billingCycle] > 0 && (
-                    <span className="text-white/64 text-sm">
-                      /{billingCycle === "monthly" ? "month" : "year"}
+                <div className="mb-6">
+                  {plan.price[billingCycle] === 0 ? (
+                    <span className="text-5xl font-bold text-white">
+                      Free
                     </span>
+                  ) : plan.price[billingCycle] === "Custom" ? (
+                    <span className="text-5xl font-bold text-white">
+                      Custom
+                    </span>
+                  ) : (
+                    <>
+                      <span className="text-5xl font-bold text-white">
+                        ${plan.price[billingCycle]}
+                      </span>
+                      <span className="text-gray-400 text-lg">
+                        /{billingCycle === "monthly" ? "month" : "year"}
+                      </span>
+                    </>
                   )}
-                  {billingCycle === "yearly" && plan.price.monthly > 0 && (
+                  {billingCycle === "yearly" && typeof plan.price.monthly === "number" && typeof plan.price.yearly === "number" && plan.price.monthly > 0 && (
                     <div className="mt-2">
-                      <span className="text-sm text-white/64 line-through">
+                      <span className="text-sm text-gray-500 line-through">
                         ${plan.price.monthly * 12}/year
                       </span>
                       <span className="ml-2 text-sm text-[#0ea371] font-semibold">
@@ -214,18 +224,9 @@ export default function PricingPage() {
                     </div>
                   )}
                 </div>
-
-                <div className="bg-[#8952e0]/10 border border-[#8952e0]/20 rounded-lg p-3 mb-6">
-                  <div className="text-2xl font-bold text-[#8952e0] mb-1">
-                    {plan.credits}
-                  </div>
-                  <div className="text-sm text-white/64">
-                    Blog credits per month
-                  </div>
-                </div>
               </div>
 
-              <ul className="space-y-3 mb-8">
+              <ul className="space-y-4 mb-8">
                 {plan.features.map((feature, featureIndex) => (
                   <li key={featureIndex} className="flex items-start gap-3">
                     <svg
@@ -241,13 +242,13 @@ export default function PricingPage() {
                         d="M5 13l4 4L19 7"
                       />
                     </svg>
-                    <span className="text-white/92 text-sm">{feature}</span>
+                    <span className="text-gray-300 text-sm">{feature}</span>
                   </li>
                 ))}
-                {plan.limitations?.map((limitation, limitIndex) => (
+                {plan.limitations?.map((limitation: string, limitIndex: number) => (
                   <li key={`limit-${limitIndex}`} className="flex items-start gap-3">
                     <svg
-                      className="w-5 h-5 text-white/40 flex-shrink-0 mt-0.5"
+                      className="w-5 h-5 text-gray-600 flex-shrink-0 mt-0.5"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -259,13 +260,19 @@ export default function PricingPage() {
                         d="M6 18L18 6M6 6l12 12"
                       />
                     </svg>
-                    <span className="text-white/64 text-sm">{limitation}</span>
+                    <span className="text-gray-500 text-sm">{limitation}</span>
                   </li>
                 ))}
               </ul>
 
               <button
-                className={`w-full py-3 px-4 rounded-md font-semibold text-sm transition-colors ${plan.buttonStyle}`}
+                className={`w-full py-4 px-6 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                  plan.popular
+                    ? "bg-[#ff6b35] hover:bg-[#ff6b35]/90 text-white shadow-lg hover:shadow-xl"
+                    : plan.name === "Enterprise"
+                    ? "bg-gray-700 hover:bg-gray-600 text-white"
+                    : "bg-gray-700 hover:bg-gray-600 text-white"
+                }`}
               >
                 {plan.buttonText}
               </button>
