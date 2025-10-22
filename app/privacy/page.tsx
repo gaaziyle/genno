@@ -148,7 +148,7 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-2xl font-semibold text-white/92 mb-4">9. Third-Party Services</h2>
             <p className="text-white/80 leading-relaxed">
-              Our service may integrate with third-party services, including YouTube's API and AI processing services. These third parties have their own privacy policies, and we encourage you to review them. We are not responsible for the privacy practices of these third parties.
+              Our service may integrate with third-party services, including YouTube&apos;s API and AI processing services. These third parties have their own privacy policies, and we encourage you to review them. We are not responsible for the privacy practices of these third parties.
             </p>
           </section>
 
