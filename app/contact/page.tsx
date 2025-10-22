@@ -66,7 +66,7 @@ export default function ContactPage() {
             Get in Touch
           </h1>
           <p className="text-xl text-white/64 max-w-2xl mx-auto">
-            Have questions about Genno? We're here to help. Reach out to our team and we'll get back to you as soon as possible.
+            Have questions about Genno? We&apos;re here to help. Reach out to our team and we&apos;ll get back to you as soon as possible.
           </p>
         </div>
 
@@ -85,7 +85,7 @@ export default function ContactPage() {
                   </div>
                   <h3 className="text-xl font-semibold text-white/92 mb-2">Message Sent!</h3>
                   <p className="text-white/64 mb-6">
-                    Thank you for reaching out. We'll get back to you within 24 hours.
+                    Thank you for reaching out. We&apos;ll get back to you within 24 hours.
                   </p>
                   <button
                     onClick={() => setSubmitted(false)}

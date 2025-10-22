@@ -43,7 +43,7 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-2xl font-semibold text-white/92 mb-4">1. Introduction</h2>
             <p className="text-white/80 leading-relaxed">
-              Welcome to Genno ("we," "our," or "us"). This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our service that converts YouTube videos into blog posts. Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access the application.
+              Welcome to Genno (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;). This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our service that converts YouTube videos into blog posts. Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access the application.
             </p>
           </section>
 
@@ -162,7 +162,7 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-2xl font-semibold text-white/92 mb-4">11. Changes to This Privacy Policy</h2>
             <p className="text-white/80 leading-relaxed">
-              We may update this privacy policy from time to time. We will notify you of any changes by posting the new privacy policy on this page and updating the "Last updated" date. You are advised to review this privacy policy periodically for any changes.
+              We may update this privacy policy from time to time. We will notify you of any changes by posting the new privacy policy on this page and updating the &quot;Last updated&quot; date. You are advised to review this privacy policy periodically for any changes.
             </p>
           </section>
 
