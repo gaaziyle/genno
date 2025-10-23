@@ -168,10 +168,10 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="/refund"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
-                  Security
+                  Refund
                 </Link>
               </li>
               <li>
