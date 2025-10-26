@@ -1,8 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { supabase } from "@/lib/supabase";
+import Link from "next/link";
+
+interface UserProfile {
+  credits: number;
+}
 
 export default function ConvertPage() {
   const { user } = useUser();
@@ -10,6 +15,36 @@ export default function ConvertPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchUserProfile();
+    }
+  }, [user?.id]);
+
+  const fetchUserProfile = async () => {
+    if (!user?.id) return;
+
+    try {
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("credits")
+        .eq("clerk_user_id", user.id)
+        .single();
+
+      if (profileError) {
+        console.error("Error fetching user profile:", profileError);
+      } else {
+        setUserProfile(profileData);
+      }
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+    } finally {
+      setProfileLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,6 +53,11 @@ export default function ConvertPage() {
     setSuccess(false);
 
     try {
+      // Check if user has credits
+      if (!userProfile || userProfile.credits <= 0) {
+        throw new Error("You don't have enough credits to convert a video. Please upgrade your plan.");
+      }
+
       // Validate URL
       if (!url.trim()) {
         throw new Error("Please enter a YouTube URL");
@@ -51,6 +91,19 @@ export default function ConvertPage() {
         );
       }
 
+      // Deduct 1 credit before sending the request
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ credits: userProfile.credits - 1 })
+        .eq("clerk_user_id", user.id);
+
+      if (updateError) {
+        throw new Error("Failed to deduct credit. Please try again.");
+      }
+
+      // Update local state
+      setUserProfile(prev => prev ? { ...prev, credits: prev.credits - 1 } : null);
+
       // Send request directly to webhook
       const response = await fetch(
         "https://iamgaazicom.app.n8n.cloud/webhook/youtube-to-blog",
@@ -69,6 +122,14 @@ export default function ConvertPage() {
       );
 
       if (!response.ok) {
+        // If webhook fails, restore the credit
+        await supabase
+          .from("profiles")
+          .update({ credits: userProfile.credits })
+          .eq("clerk_user_id", user.id);
+        
+        setUserProfile(prev => prev ? { ...prev, credits: prev.credits + 1 } : null);
+        
         throw new Error(
           `Failed to send request: ${response.status} ${response.statusText}`
         );
@@ -96,12 +157,94 @@ export default function ConvertPage() {
       <div className="max-w-3xl mx-auto">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-white/92 mb-2">
-            Submit Video for Processing
-          </h1>
-          <p className="text-[14px] text-white/64">
-            Paste a YouTube URL to send for processing
-          </p>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-2xl font-semibold text-white/92 mb-2">
+                Submit Video for Processing
+              </h1>
+              <p className="text-[14px] text-white/64">
+                Paste a YouTube URL to send for processing
+              </p>
+            </div>
+            {!profileLoading && (
+              <div className="text-right">
+                <p className="text-[13px] text-white/64 mb-1">Credits remaining</p>
+                <p className="text-xl font-semibold text-white/92">
+                  {userProfile?.credits || 0}
+                </p>
+              </div>
+            )}
+          </div>
+          
+          {/* Low Credits Warning */}
+          {!profileLoading && userProfile && userProfile.credits <= 0 && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-md">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <svg
+                    className="w-5 h-5 text-red-400 flex-shrink-0"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <div>
+                    <p className="text-[13px] font-medium text-red-400">
+                      No credits remaining
+                    </p>
+                    <p className="text-[12px] text-white/64">
+                      You need credits to convert YouTube videos to blog posts.
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href="/pricing"
+                  className="px-4 py-2 bg-[#8952e0] hover:bg-[#7543c9] rounded-md text-white text-[13px] font-semibold transition-colors"
+                >
+                  Upgrade Plan
+                </Link>
+              </div>
+            </div>
+          )}
+          
+          {/* Low Credits Warning (1-2 credits left) */}
+          {!profileLoading && userProfile && userProfile.credits > 0 && userProfile.credits <= 2 && (
+            <div className="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-md">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <svg
+                    className="w-5 h-5 text-yellow-400 flex-shrink-0"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <div>
+                    <p className="text-[13px] font-medium text-yellow-400">
+                      Running low on credits
+                    </p>
+                    <p className="text-[12px] text-white/64">
+                      You have {userProfile.credits} credit{userProfile.credits !== 1 ? 's' : ''} remaining.
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href="/pricing"
+                  className="px-4 py-2 bg-[#8952e0] hover:bg-[#7543c9] rounded-md text-white text-[13px] font-semibold transition-colors"
+                >
+                  Get More Credits
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Success Message */}
@@ -201,7 +344,7 @@ export default function ConvertPage() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || profileLoading || !userProfile || userProfile.credits <= 0}
               className="w-full px-6 py-2.5 bg-[#e47c23] hover:bg-[#aa5e1b] disabled:opacity-50 disabled:cursor-not-allowed rounded-md text-white text-[13px] font-semibold transition-colors"
             >
               {loading ? (
@@ -227,8 +370,12 @@ export default function ConvertPage() {
                   </svg>
                   Creating...
                 </span>
+              ) : profileLoading ? (
+                "Loading..."
+              ) : !userProfile || userProfile.credits <= 0 ? (
+                "No Credits Available"
               ) : (
-                "Create Blog"
+                `Create Blog (${userProfile.credits} credit${userProfile.credits !== 1 ? 's' : ''} left)`
               )}
             </button>
           </form>
