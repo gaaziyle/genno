@@ -1,82 +1,71 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-
-interface PricingPlan {
-  name: string;
-  description: string;
-  price: {
-    monthly: number | string;
-    yearly: number | string;
-  };
-  credits: number | string;
-  features: string[];
-  limitations?: string[];
-  buttonText: string;
-  popular: boolean;
-}
+import { useUser } from "@clerk/nextjs";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { initPaddle, getPricingPlans, openCheckout, type PricingPlan } from "@/lib/paddle";
 
 export default function PricingPage() {
+  const { user, isSignedIn } = useUser();
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
+  const [paddleLoaded, setPaddleLoaded] = useState(false);
+  const [plans, setPlans] = useState<PricingPlan[]>([]);
 
-  const plans: PricingPlan[] = [
-    {
-      name: "Starter",
-      description: "Perfect for trying out Genno",
-      price: {
-        monthly: 0,
-        yearly: 0,
-      },
-      credits: 5,
-      features: [
-        "5 videos per month",
-        "Basic transcription",
-        "Markdown export",
-        "Community support",
-      ],
-      buttonText: "Get Started",
-      popular: false,
-    },
-    {
-      name: "Pro",
-      description: "Best for content creators",
-      price: {
-        monthly: 29,
-        yearly: 278, // 20% discount: 29 * 12 * 0.8 = 278.4 rounded to 278
-      },
-      credits: 50,
-      features: [
-        "50 videos per month",
-        "Advanced AI transcription",
-        "All export formats",
-        "Priority support",
-        "Custom formatting",
-        "API access",
-      ],
-      buttonText: "Start Free Trial",
-      popular: true,
-    },
-    {
-      name: "Enterprise",
-      description: "For teams and agencies",
-      price: {
-        monthly: "Custom",
-        yearly: "Custom",
-      },
-      credits: "Unlimited",
-      features: [
-        "Unlimited videos",
-        "Dedicated AI model",
-        "White-label solution",
-        "24/7 premium support",
-        "Custom integrations",
-        "SLA guarantee",
-      ],
-      buttonText: "Contact Sales",
-      popular: false,
-    },
-  ];
+  // Initialize Paddle on mount
+  useEffect(() => {
+    const init = async () => {
+      const paddle = await initPaddle();
+      setPaddleLoaded(!!paddle);
+      
+      // Get pricing plans with correct environment
+      const pricingPlans = getPricingPlans();
+      setPlans(pricingPlans);
+    };
+
+    init();
+  }, []);
+
+  const handleSubscribe = async (plan: PricingPlan) => {
+    console.log('🎯 Subscribe clicked for:', plan.name);
+
+    if (plan.name === "Free") {
+      window.location.href = isSignedIn ? "/dashboard" : "/sign-up";
+      return;
+    }
+
+    if (!isSignedIn) {
+      window.location.href = `/sign-up?redirect=/pricing&plan=${plan.name.toLowerCase()}`;
+      return;
+    }
+
+    if (!paddleLoaded) {
+      alert("Payment system is loading. Please try again in a moment.");
+      return;
+    }
+
+    const priceId = plan.priceIds[billingCycle];
+    
+    if (!priceId) {
+      console.error('❌ Price ID not found for', plan.name, billingCycle);
+      alert(`Price ID not configured for ${plan.name} (${billingCycle}). Please contact support.`);
+      return;
+    }
+
+    try {
+      await openCheckout(
+        priceId,
+        user?.primaryEmailAddress?.emailAddress || "",
+        user?.id || "",
+        plan.name,
+        billingCycle
+      );
+    } catch (error: any) {
+      console.error('❌ Error opening checkout:', error);
+      alert(error.message || 'Failed to open checkout. Please try again or contact support.');
+    }
+  };
 
   const faqs = [
     {
@@ -103,33 +92,7 @@ export default function PricingPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      {/* Header */}
-      <header className="border-b border-gray-400/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-[#8952e0] rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">G</span>
-              </div>
-              <span className="text-white/92 font-semibold text-lg">Genno</span>
-            </Link>
-            <div className="flex items-center gap-4">
-              <Link
-                href="/login"
-                className="text-white/64 hover:text-white/92 transition-colors text-sm"
-              >
-                Sign In
-              </Link>
-              <Link
-                href="/signup"
-                className="px-4 py-2 bg-[#8952e0] hover:bg-[#7543c9] rounded-md text-white text-sm font-semibold transition-colors"
-              >
-                Get Started
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {/* Hero Section */}
@@ -171,18 +134,18 @@ export default function PricingPage() {
 
         {/* Pricing Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 max-w-5xl mx-auto">
-          {plans.map((plan, index) => (
+          {plans.map((plan) => (
             <div
               key={plan.name}
               className={`relative rounded-2xl p-8 ${
                 plan.popular
-                  ? "bg-gradient-to-b from-[#ff6b35]/20 to-[#ff6b35]/5 border-2 border-[#ff6b35] transform scale-105"
+                  ? "bg-gradient-to-b from-[#8952e0]/20 to-[#8952e0]/5 border-2 border-[#8952e0] transform scale-105"
                   : "bg-[#1a1a1a] border border-gray-700"
               }`}
             >
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <span className="bg-[#ff6b35] text-white text-sm font-semibold px-4 py-2 rounded-full">
+                  <span className="bg-[#8952e0] text-white text-sm font-semibold px-4 py-2 rounded-full">
                     Most Popular
                   </span>
                 </div>
@@ -194,14 +157,10 @@ export default function PricingPage() {
                 </h3>
                 <p className="text-gray-400 text-sm mb-6">{plan.description}</p>
                 
-                <div className="mb-6">
+                <div className="mb-4">
                   {plan.price[billingCycle] === 0 ? (
                     <span className="text-5xl font-bold text-white">
                       Free
-                    </span>
-                  ) : plan.price[billingCycle] === "Custom" ? (
-                    <span className="text-5xl font-bold text-white">
-                      Custom
                     </span>
                   ) : (
                     <>
@@ -209,21 +168,28 @@ export default function PricingPage() {
                         ${plan.price[billingCycle]}
                       </span>
                       <span className="text-gray-400 text-lg">
-                        /{billingCycle === "monthly" ? "month" : "year"}
+                        /{billingCycle === "monthly" ? "mo" : "yr"}
                       </span>
                     </>
                   )}
-                  {billingCycle === "yearly" && typeof plan.price.monthly === "number" && typeof plan.price.yearly === "number" && plan.price.monthly > 0 && (
-                    <div className="mt-2">
-                      <span className="text-sm text-gray-500 line-through">
-                        ${plan.price.monthly * 12}/year
-                      </span>
-                      <span className="ml-2 text-sm text-[#0ea371] font-semibold">
-                        Save ${(plan.price.monthly * 12) - plan.price.yearly}
-                      </span>
-                    </div>
-                  )}
                 </div>
+                
+                <div className="text-[#8952e0] font-semibold text-lg">
+                  {plan.credits} credits/month
+                </div>
+                
+                {billingCycle === "yearly" && plan.price.monthly > 0 && (
+                  <div className="mt-2">
+                    <span className="text-sm text-gray-500 line-through">
+  ${ (plan.price.monthly * 12).toFixed(2) }/year
+</span>
+
+                    <span className="ml-2 text-sm text-[#0ea371] font-semibold">
+  Save ${((plan.price.monthly * 12) - plan.price.yearly).toFixed(2)}
+</span>
+
+                  </div>
+                )}
               </div>
 
               <ul className="space-y-4 mb-8">
@@ -245,36 +211,20 @@ export default function PricingPage() {
                     <span className="text-gray-300 text-sm">{feature}</span>
                   </li>
                 ))}
-                {plan.limitations?.map((limitation: string, limitIndex: number) => (
-                  <li key={`limit-${limitIndex}`} className="flex items-start gap-3">
-                    <svg
-                      className="w-5 h-5 text-gray-600 flex-shrink-0 mt-0.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                    <span className="text-gray-500 text-sm">{limitation}</span>
-                  </li>
-                ))}
               </ul>
 
               <button
-                className={`w-full py-4 px-6 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                onClick={() => handleSubscribe(plan)}
+                disabled={!paddleLoaded && plan.name !== "Free"}
+                className={`w-full py-4 px-6 rounded-xl font-semibold text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                   plan.popular
-                    ? "bg-[#ff6b35] hover:bg-[#ff6b35]/90 text-white shadow-lg hover:shadow-xl"
-                    : plan.name === "Enterprise"
-                    ? "bg-gray-700 hover:bg-gray-600 text-white"
+                    ? "bg-[#8952e0] hover:bg-[#7543c9] text-white shadow-lg hover:shadow-xl"
+                    : plan.name === "Free"
+                    ? "bg-white/8 hover:bg-white/12 text-white"
                     : "bg-gray-700 hover:bg-gray-600 text-white"
                 }`}
               >
-                {plan.buttonText}
+                {!paddleLoaded && plan.name !== "Free" ? "Loading..." : plan.buttonText}
               </button>
             </div>
           ))}
@@ -305,6 +255,12 @@ export default function PricingPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-400/50">
+                  <tr>
+                    <td className="px-6 py-4 text-sm text-white/92">Monthly Price</td>
+                    <td className="px-6 py-4 text-center text-sm text-white/64">$0</td>
+                    <td className="px-6 py-4 text-center text-sm text-white/64">$29</td>
+                    <td className="px-6 py-4 text-center text-sm text-white/64">$99</td>
+                  </tr>
                   <tr>
                     <td className="px-6 py-4 text-sm text-white/92">Blog credits per month</td>
                     <td className="px-6 py-4 text-center text-sm text-white/64">3</td>
@@ -425,7 +381,7 @@ export default function PricingPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/signup"
+              href="/sign-up"
               className="px-8 py-3 bg-[#8952e0] hover:bg-[#7543c9] rounded-md text-white font-semibold transition-colors"
             >
               Start Free Trial
@@ -440,30 +396,7 @@ export default function PricingPage() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="border-t border-gray-400/50 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between">
-            <div className="flex items-center gap-2 mb-4 md:mb-0">
-              <div className="w-6 h-6 bg-[#8952e0] rounded-md flex items-center justify-center">
-                <span className="text-white font-bold text-xs">G</span>
-              </div>
-              <span className="text-white/92 font-semibold">Genno</span>
-            </div>
-            <div className="flex items-center gap-6 text-sm text-white/64">
-              <Link href="/privacy" className="hover:text-white/92 transition-colors">
-                Privacy Policy
-              </Link>
-              <Link href="/terms" className="hover:text-white/92 transition-colors">
-                Terms of Service
-              </Link>
-              <Link href="/contact" className="hover:text-white/92 transition-colors">
-                Contact
-              </Link>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

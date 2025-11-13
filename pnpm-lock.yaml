@@ -11,6 +11,9 @@ importers:
       '@clerk/nextjs':
         specifier: ^6.33.7
         version: 6.33.7(next@15.5.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@paddle/paddle-js':
+        specifier: ^1.5.1
+        version: 1.5.1
       '@supabase/supabase-js':
         specifier: ^2.75.1
         version: 2.75.1
@@ -354,6 +357,9 @@ packages:
   '@nolyfill/is-core-module@1.0.39':
     resolution: {integrity: sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA==}
     engines: {node: '>=12.4.0'}
+
+  '@paddle/paddle-js@1.5.1':
+    resolution: {integrity: sha512-n5btAxhRt3ws0/7g8tlz5yH1kYbN3DRp4pKQD5F2hueovmn6rasxrlJJgd33+dI9amA2w2OjkV+mxuori4eEJA==}
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -2241,6 +2247,8 @@ snapshots:
       fastq: 1.19.1
 
   '@nolyfill/is-core-module@1.0.39': {}
+
+  '@paddle/paddle-js@1.5.1': {}
 
   '@pkgjs/parseargs@0.11.0':
     optional: true

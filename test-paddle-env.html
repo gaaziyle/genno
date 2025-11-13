@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Paddle Token Test</title>
+</head>
+<body>
+    <h1>Paddle Environment Test</h1>
+    <div id="output"></div>
+    
+    <script>
+        const output = document.getElementById('output');
+        
+        // Check if we're on localhost
+        const isLocalhost = window.location.hostname === 'localhost' || 
+                           window.location.hostname === '127.0.0.1';
+        
+        output.innerHTML = `
+            <h2>Environment Detection:</h2>
+            <p><strong>Hostname:</strong> ${window.location.hostname}</p>
+            <p><strong>Is Localhost:</strong> ${isLocalhost}</p>
+            <p><strong>Expected Environment:</strong> ${isLocalhost ? 'SANDBOX' : 'PRODUCTION'}</p>
+            
+            <h2>Instructions:</h2>
+            <ol>
+                <li>Open your browser DevTools (F12)</li>
+                <li>Go to Console tab</li>
+                <li>Type: <code>localStorage</code> and press Enter</li>
+                <li>Check if there are any Paddle-related items</li>
+            </ol>
+            
+            <h2>Next Steps:</h2>
+            <p><strong>For Sandbox (localhost):</strong></p>
+            <ol>
+                <li>Go to: <a href="https://sandbox-vendors.paddle.com/authentication-v2" target="_blank">Paddle Sandbox Auth</a></li>
+                <li>Copy the "Client-side token" (starts with <code>test_</code>)</li>
+                <li>Update <code>NEXT_PUBLIC_PADDLE_CLIENT_TOKEN_SANDBOX</code> in .env.local</li>
+            </ol>
+            
+            <p><strong>For Production (genno.io):</strong></p>
+            <ol>
+                <li>Go to: <a href="https://vendors.paddle.com/authentication-v2" target="_blank">Paddle Production Auth</a></li>
+                <li>Copy the "Client-side token" (starts with <code>live_</code>)</li>
+                <li>Update <code>NEXT_PUBLIC_PADDLE_CLIENT_TOKEN</code> in .env.local</li>
+            </ol>
+            
+            <h2>Token Format Check:</h2>
+            <p>Valid tokens should be 40-50 characters long:</p>
+            <pre>
+✅ test_2def8b155c8bd5d7a150c9ee34e1234567890
+✅ live_b5fd9b9341fd4c49dea972fe4301234567890
+
+❌ live_b5fd9b9341fd4c49dea972fe430 (TOO SHORT!)
+            </pre>
+            
+            <h2>After Updating Token:</h2>
+            <ol>
+                <li>Stop your dev server (Ctrl+C)</li>
+                <li>Restart: <code>pnpm dev</code></li>
+                <li>Clear browser cache (Ctrl+Shift+Delete)</li>
+                <li>Reload the page</li>
+            </ol>
+        `;
+    </script>
+</body>
+</html>

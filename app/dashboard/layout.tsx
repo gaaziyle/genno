@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import gennoLogo from "@/app/genno-logo.png";
+import { useCredits } from "@/hooks/useCredits";
 
 interface UserProfile {
   first_name?: string;
@@ -24,6 +25,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const { credits, planType, loading: creditsLoading } = useCredits();
 
   useEffect(() => {
     setMounted(true);
@@ -263,6 +265,45 @@ export default function DashboardLayout({
           </div>
 
           <div className="flex-1" />
+
+          {/* Credits Display */}
+          <div className="mb-3 px-2">
+            <Link
+              href="/dashboard/subscription"
+              className="block p-3 bg-gradient-to-br from-[#8952e0]/20 to-[#8952e0]/5 border border-[#8952e0]/30 rounded-lg hover:border-[#8952e0]/50 transition-colors"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] text-white/64 font-medium uppercase tracking-wide">
+                  Credits
+                </span>
+                <svg
+                  className="w-4 h-4 text-[#8952e0]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
+                </svg>
+              </div>
+              {creditsLoading ? (
+                <div className="h-6 bg-white/10 rounded animate-pulse" />
+              ) : (
+                <>
+                  <div className="text-2xl font-bold text-white/92 mb-1">
+                    {credits}
+                  </div>
+                  <div className="text-[11px] text-white/64">
+                    {planType.charAt(0).toUpperCase() + planType.slice(1)} Plan
+                  </div>
+                </>
+              )}
+            </Link>
+          </div>
 
           {/* Bottom Links */}
           <div className="space-y-0.5 pt-2 border-t border-gray-400/50">

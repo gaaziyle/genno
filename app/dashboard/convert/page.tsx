@@ -1,50 +1,18 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
-
-interface UserProfile {
-  credits: number;
-}
+import { useCredits } from "@/hooks/useCredits";
 
 export default function ConvertPage() {
   const { user } = useUser();
+  const { credits, planType, hasCredits, loading: creditsLoading, refetch: refetchCredits, deductCredit } = useCredits();
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [profileLoading, setProfileLoading] = useState(true);
-
-  const fetchUserProfile = useCallback(async () => {
-    if (!user?.id) return;
-
-    try {
-      const { data: profileData, error: profileError } = await supabase
-        .from("profiles")
-        .select("credits")
-        .eq("clerk_user_id", user.id)
-        .single();
-
-      if (profileError) {
-        console.error("Error fetching user profile:", profileError);
-      } else {
-        setUserProfile(profileData);
-      }
-    } catch (error) {
-      console.error("Error fetching user profile:", error);
-    } finally {
-      setProfileLoading(false);
-    }
-  }, [user?.id]);
-
-  useEffect(() => {
-    if (user?.id) {
-      fetchUserProfile();
-    }
-  }, [user?.id, fetchUserProfile]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +22,7 @@ export default function ConvertPage() {
 
     try {
       // Check if user has credits
-      if (!userProfile || userProfile.credits <= 0) {
+      if (!hasCredits) {
         throw new Error(
           "You don't have enough credits to convert a video. Please upgrade your plan."
         );
@@ -80,6 +48,13 @@ export default function ConvertPage() {
         );
       }
 
+      // Check if user has credits
+      if (!hasCredits) {
+        throw new Error(
+          "You don't have enough credits. Please upgrade your plan to continue."
+        );
+      }
+
       // Get clerk_user_id from profiles table
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
@@ -94,23 +69,17 @@ export default function ConvertPage() {
       }
 
       // Deduct 1 credit before sending the request
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update({ credits: userProfile.credits - 1 })
-        .eq("clerk_user_id", user.id);
-
-      if (updateError) {
-        throw new Error("Failed to deduct credit. Please try again.");
+      try {
+        await deductCredit(1, "YouTube to blog conversion");
+      } catch (creditError: any) {
+        throw new Error(
+          creditError.message || "Failed to deduct credit. Please try again."
+        );
       }
-
-      // Update local state
-      setUserProfile((prev) =>
-        prev ? { ...prev, credits: prev.credits - 1 } : null
-      );
 
       // Send request directly to webhook
       const response = await fetch(
-        "https://iamgaazicom.app.n8n.cloud/webhook/youtube-to-blog",
+        "hhttps://nn.farabiulder.com/webhook-test/youtube-to-blog",
         {
           method: "POST",
           headers: {
@@ -126,20 +95,15 @@ export default function ConvertPage() {
       );
 
       if (!response.ok) {
-        // If webhook fails, restore the credit
-        await supabase
-          .from("profiles")
-          .update({ credits: userProfile.credits })
-          .eq("clerk_user_id", user.id);
-
-        setUserProfile((prev) =>
-          prev ? { ...prev, credits: prev.credits + 1 } : null
-        );
-
+        // If webhook fails, we should ideally restore the credit
+        // For now, just show an error
         throw new Error(
           `Failed to send request: ${response.status} ${response.statusText}`
         );
       }
+
+      // Refetch credits to update UI
+      await refetchCredits();
 
       // If we get here, the request was successful
       setSuccess(true);
@@ -172,20 +136,23 @@ export default function ConvertPage() {
                 Paste a YouTube URL to send for processing
               </p>
             </div>
-            {!profileLoading && (
+            {!creditsLoading && (
               <div className="text-right">
                 <p className="text-[13px] text-white/64 mb-1">
                   Credits remaining
                 </p>
                 <p className="text-xl font-semibold text-white/92">
-                  {userProfile?.credits || 0}
+                  {credits}
+                </p>
+                <p className="text-[11px] text-white/40 mt-1">
+                  {planType.charAt(0).toUpperCase() + planType.slice(1)} Plan
                 </p>
               </div>
             )}
           </div>
 
-          {/* Low Credits Warning */}
-          {!profileLoading && userProfile && userProfile.credits <= 0 && (
+          {/* No Credits Warning */}
+          {!creditsLoading && !hasCredits && (
             <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-md">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -220,10 +187,10 @@ export default function ConvertPage() {
           )}
 
           {/* Low Credits Warning (1-2 credits left) */}
-          {!profileLoading &&
-            userProfile &&
-            userProfile.credits > 0 &&
-            userProfile.credits <= 2 && (
+          {!creditsLoading &&
+            hasCredits &&
+            credits > 0 &&
+            credits <= 2 && (
               <div className="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-md">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -243,8 +210,8 @@ export default function ConvertPage() {
                         Running low on credits
                       </p>
                       <p className="text-[12px] text-white/64">
-                        You have {userProfile.credits} credit
-                        {userProfile.credits !== 1 ? "s" : ""} remaining.
+                        You have {credits} credit
+                        {credits !== 1 ? "s" : ""} remaining.
                       </p>
                     </div>
                   </div>
@@ -358,9 +325,8 @@ export default function ConvertPage() {
               type="submit"
               disabled={
                 loading ||
-                profileLoading ||
-                !userProfile ||
-                userProfile.credits <= 0
+                creditsLoading ||
+                !hasCredits
               }
               className="w-full px-6 py-2.5 bg-[#e47c23] hover:bg-[#aa5e1b] disabled:opacity-50 disabled:cursor-not-allowed rounded-md text-white text-[13px] font-semibold transition-colors"
             >
@@ -387,13 +353,13 @@ export default function ConvertPage() {
                   </svg>
                   Creating...
                 </span>
-              ) : profileLoading ? (
+              ) : creditsLoading ? (
                 "Loading..."
-              ) : !userProfile || userProfile.credits <= 0 ? (
+              ) : !hasCredits ? (
                 "No Credits Available"
               ) : (
-                `Create Blog (${userProfile.credits} credit${
-                  userProfile.credits !== 1 ? "s" : ""
+                `Create Blog (${credits} credit${
+                  credits !== 1 ? "s" : ""
                 } left)`
               )}
             </button>

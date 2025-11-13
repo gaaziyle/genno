@@ -1,28 +1,35 @@
-# Deploy Create-Blog Edge Function
+# Edge Function Deployment Guide
 
-## Overview
+This guide explains how to deploy the Paddle webhook handler as a Supabase Edge Function.
 
-This guide helps you deploy the `create-blog` Edge Function to ensure each blog gets a unique ID when created from your n8n workflow.
+## Why Use Edge Functions?
+
+Edge Functions provide:
+- **Better Performance**: Run closer to your users
+- **Automatic Scaling**: Handle any webhook volume
+- **Built-in Monitoring**: Logs and metrics in Supabase dashboard
+- **Secure**: Direct access to Supabase without exposing service keys
 
 ## Prerequisites
 
 - Supabase CLI installed
 - Supabase project created
-- Access to your Supabase dashboard
+- Database schema deployed (user_credits, subscriptions tables)
 
-## Installation Steps
+## Step-by-Step Deployment
 
 ### 1. Install Supabase CLI
 
-**Windows (PowerShell):**
+```bash
+# Using npm
+npm install -g supabase
 
-```powershell
-# Using Scoop
+# Using Homebrew (macOS)
+brew install supabase/tap/supabase
+
+# Using Scoop (Windows)
 scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
 scoop install supabase
-
-# Or using npm
-npm install -g supabase
 ```
 
 ### 2. Login to Supabase
@@ -31,383 +38,340 @@ npm install -g supabase
 supabase login
 ```
 
-This will open a browser window to authenticate.
+This will open your browser to authenticate.
 
 ### 3. Link Your Project
 
 ```bash
 # Get your project ref from Supabase dashboard URL
-# https://app.supabase.com/project/YOUR_PROJECT_REF
+# Example: https://app.supabase.com/project/abcdefghijklmnop
+# Project ref is: abcdefghijklmnop
 
-supabase link --project-ref YOUR_PROJECT_REF
+supabase link --project-ref your-project-ref
 ```
 
 ### 4. Deploy the Edge Function
 
 ```bash
-cd c:\Users\muham\Desktop\genno
-supabase functions deploy create-blog
+cd your-project-directory
+supabase functions deploy paddle-webhook
 ```
 
-### 5. Get Your Function URL
-
-After deployment, you'll see:
-
+You should see output like:
 ```
-Deployed Function create-blog
-URL: https://YOUR_PROJECT_REF.supabase.co/functions/v1/create-blog
+Deploying paddle-webhook (project ref: your-project-ref)
+Deployed Function paddle-webhook
+Function URL: https://your-project.supabase.co/functions/v1/paddle-webhook
 ```
 
-**Save this URL!** You'll need it for n8n configuration.
+### 5. Set Environment Variables
 
-## Configure n8n Workflow
-
-### Update Your n8n Workflow
-
-After your AI processes the YouTube video, add a new HTTP Request node:
-
-**Node Configuration:**
-
-1. **Method:** POST
-2. **URL:** `https://YOUR_PROJECT_REF.supabase.co/functions/v1/create-blog`
-3. **Headers:**
-   ```
-   Content-Type: application/json
-   ```
-4. **Body (JSON):**
-   ```json
-   {
-     "clerk_user_id": "{{ $json.clerk_user_id }}",
-     "title": "{{ $json.generated_title }}",
-     "content": "{{ $json.generated_content }}",
-     "excerpt": "{{ $json.generated_excerpt }}",
-     "youtube_url": "{{ $json.youtubeUrl }}",
-     "thumbnail_url": "{{ $json.thumbnail_url }}",
-     "tags": {{ $json.tags }}
-   }
-   ```
-
-### Complete n8n Flow
-
-```
-1. Webhook Trigger (receives YouTube URL + clerk_user_id)
-   ↓
-2. Extract YouTube Data (title, description, thumbnail)
-   ↓
-3. Get YouTube Transcript
-   ↓
-4. AI Processing (generate blog content)
-   ↓
-5. HTTP Request → Supabase Edge Function (create blog)
-   ↓
-6. Success Response
-```
-
-## Testing
-
-### Test the Edge Function Directly
+The function needs access to your Supabase credentials:
 
 ```bash
-# Using curl
-curl -X POST https://YOUR_PROJECT_REF.supabase.co/functions/v1/create-blog \
+# Set SUPABASE_URL
+supabase secrets set SUPABASE_URL=https://your-project.supabase.co
+
+# Set SUPABASE_SERVICE_ROLE_KEY (find in Project Settings > API)
+supabase secrets set SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+```
+
+Or set them in the Supabase Dashboard:
+1. Go to **Edge Functions**
+2. Click on **paddle-webhook**
+3. Go to **Settings** tab
+4. Add secrets
+
+### 6. Configure Paddle Webhook
+
+1. Login to [Paddle Dashboard](https://vendors.paddle.com/)
+2. Go to **Developer Tools** > **Notifications**
+3. Click **Add Endpoint**
+4. Enter your function URL:
+   ```
+   https://your-project.supabase.co/functions/v1/paddle-webhook
+   ```
+5. Select events to subscribe to:
+   - ✅ subscription.created
+   - ✅ subscription.updated
+   - ✅ subscription.canceled
+   - ✅ subscription.activated
+   - ✅ subscription.past_due
+   - ✅ subscription.paused
+6. Save the endpoint
+
+### 7. Test the Webhook
+
+#### Option A: Use Paddle's Test Mode
+
+1. In Paddle dashboard, switch to **Sandbox** mode
+2. Create a test subscription
+3. Check Edge Function logs in Supabase
+
+#### Option B: Manual Test with curl
+
+```bash
+curl -X POST https://your-project.supabase.co/functions/v1/paddle-webhook \
   -H "Content-Type: application/json" \
   -d '{
-    "clerk_user_id": "user_test123",
-    "title": "My Test Blog Post",
-    "content": "<h2>Introduction</h2><p>This is a test blog post...</p>",
-    "excerpt": "A brief summary of the blog post",
-    "youtube_url": "https://youtube.com/watch?v=test123"
+    "event_type": "subscription.created",
+    "data": {
+      "id": "sub_test123",
+      "customer_id": "cus_test123",
+      "status": "active",
+      "custom_data": {
+        "clerkUserId": "user_2abc123",
+        "planType": "starter",
+        "billingCycle": "monthly"
+      },
+      "items": [{
+        "price_id": "pri_01k9x3x7p91mcjbvtrmvcq9sbh",
+        "price": {
+          "unit_price": {
+            "amount": "2900"
+          }
+        }
+      }],
+      "currency_code": "USD",
+      "current_billing_period": {
+        "starts_at": "2024-01-01T00:00:00Z",
+        "ends_at": "2024-02-01T00:00:00Z"
+      }
+    }
   }'
 ```
 
-**Expected Response:**
+### 8. Verify in Database
 
-```json
-{
-  "success": true,
-  "message": "Blog created successfully",
-  "blog": {
-    "id": "550e8400-e29b-41d4-a716-446655440000",
-    "title": "My Test Blog Post",
-    "slug": "my-test-blog-post-abc12345",
-    "clerk_user_id": "user_test123",
-    "is_publish": false,
-    "created_at": "2024-01-01T00:00:00.000Z"
-  }
-}
+Check that the webhook created records:
+
+```sql
+-- Check subscriptions
+SELECT * FROM subscriptions ORDER BY created_at DESC LIMIT 5;
+
+-- Check credits were updated
+SELECT * FROM user_credits ORDER BY updated_at DESC LIMIT 5;
+
+-- Check transaction log
+SELECT * FROM credit_transactions ORDER BY created_at DESC LIMIT 10;
 ```
 
-### Verify in Supabase
+## Monitoring
 
-1. Open Supabase Dashboard
-2. Go to Table Editor → `blogs`
-3. Check for the newly created blog
-4. Verify it has:
-   - ✅ Unique `id` (UUID)
-   - ✅ Unique `slug`
-   - ✅ `is_publish = false`
-   - ✅ Correct `clerk_user_id`
+### View Logs in Dashboard
 
-## Integration Flow
+1. Go to Supabase Dashboard
+2. Navigate to **Edge Functions**
+3. Click on **paddle-webhook**
+4. Go to **Logs** tab
 
-### Current Setup (Before Edge Function)
-
-```
-Frontend → n8n webhook → (processing) → ?
-```
-
-### Updated Setup (With Edge Function)
-
-```
-Frontend → n8n webhook → AI Processing → create-blog Edge Function → Supabase
-     ↓                        ↓                    ↓                      ↓
-YouTube URL          Generate Content      Insert Blog            New Blog Entry
-clerk_user_id        (title, content)      (unique ID, slug)      Ready to view!
-```
-
-## Edge Function Features
-
-### Automatic Unique ID Generation
-
-```typescript
-// PostgreSQL generates UUID automatically
-id UUID DEFAULT uuid_generate_v4() PRIMARY KEY
-```
-
-Each blog gets a unique ID like:
-
-- `550e8400-e29b-41d4-a716-446655440000`
-- `7c9e6679-7425-40de-944b-e07fc1f90ae7`
-- `9e107d9d-7f7d-4d0d-84f8-8d5e8a5f6e9d`
-
-### Automatic Slug Generation
-
-```typescript
-function generateSlug(title: string): string {
-  const baseSlug = title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .substring(0, 100);
-
-  const randomSuffix = Math.random().toString(36).substring(2, 10);
-  return `${baseSlug}-${randomSuffix}`;
-}
-```
-
-Examples:
-
-- "Getting Started with React" → `getting-started-with-react-a1b2c3d4`
-- "10 Tips for Better Code" → `10-tips-for-better-code-x9y8z7w6`
-
-### Default Values
-
-```typescript
-{
-  is_publish: false,        // Always starts as draft
-  created_at: NOW(),        // Current timestamp
-  updated_at: NOW(),        // Current timestamp
-  tags: [],                 // Empty array if not provided
-}
-```
-
-## Monitoring & Debugging
-
-### View Function Logs
+### View Logs with CLI
 
 ```bash
-# Live logs
-supabase functions logs create-blog --tail
+# Real-time logs
+supabase functions logs paddle-webhook --follow
 
-# Recent logs (last 100)
-supabase functions logs create-blog
+# Last 100 logs
+supabase functions logs paddle-webhook --limit 100
 ```
 
-### Common Log Messages
+## Local Development
 
-**Success:**
+### 1. Start Supabase Locally
 
-```
-Received blog data: {title: "...", clerk_user_id: "..."}
-Creating blog with data: {title: "...", slug: "..."}
-Blog created successfully: {id: "...", title: "..."}
+```bash
+supabase start
 ```
 
-**Error:**
+### 2. Create .env.local for Edge Function
 
+Create `supabase/functions/.env.local`:
+```env
+SUPABASE_URL=http://localhost:54321
+SUPABASE_SERVICE_ROLE_KEY=your-local-service-role-key
 ```
-Error in create-blog function: clerk_user_id is required
-Error inserting blog: duplicate key value...
+
+### 3. Serve Function Locally
+
+```bash
+supabase functions serve paddle-webhook --env-file supabase/functions/.env.local
 ```
+
+### 4. Test Locally
+
+```bash
+curl -X POST http://localhost:54321/functions/v1/paddle-webhook \
+  -H "Content-Type: application/json" \
+  -d @test-webhook.json
+```
+
+## Updating the Function
+
+After making changes to the function code:
+
+```bash
+supabase functions deploy paddle-webhook
+```
+
+The function will be updated without downtime.
 
 ## Troubleshooting
 
-### Issue: Function not deploying
+### Function not receiving webhooks
 
-**Solution:**
-
+**Check 1: Verify function is deployed**
 ```bash
-# Check Supabase CLI version
-supabase --version
-
-# Update CLI
-npm update -g supabase
-
-# Try deploying again
-supabase functions deploy create-blog --debug
+supabase functions list
 ```
 
-### Issue: "clerk_user_id is required"
-
-**Cause:** n8n not sending the clerk_user_id  
-**Solution:** Check your n8n workflow passes this field
-
-### Issue: "duplicate key value violates unique constraint"
-
-**Cause:** Slug already exists (very rare)  
-**Solution:** The function adds random suffix, but if it happens:
-
-- Don't provide slug in request
-- Let the function auto-generate it
-
-### Issue: Blog created but not showing in dashboard
-
-**Possible causes:**
-
-1. Wrong `clerk_user_id` - Check if it matches your profile
-2. RLS policies blocking - Check with `CHECK_BLOG_STATUS.sql`
-3. Frontend filtering issue - Check console logs
-
-**Solution:**
-
-```sql
--- Check if blog was created
-SELECT * FROM blogs ORDER BY created_at DESC LIMIT 5;
-
--- Check clerk_user_id matches
-SELECT clerk_user_id FROM profiles WHERE email = 'your-email';
+**Check 2: Test function directly**
+```bash
+curl -X POST https://your-project.supabase.co/functions/v1/paddle-webhook \
+  -H "Content-Type: application/json" \
+  -d '{"event_type":"test","data":{}}'
 ```
 
-## Security Considerations
+**Check 3: Verify Paddle webhook configuration**
+- Correct URL
+- Events selected
+- Endpoint is active
 
-### Current Setup
+### Credits not updating
 
-- ✅ Uses service role key (bypasses RLS)
-- ✅ Server-side only (secure)
-- ⚠️ No authentication on function
-
-### Production Hardening
-
-Add API key authentication:
-
-```typescript
-// In the Edge Function
-const apiKey = req.headers.get("x-api-key");
-const expectedKey = Deno.env.get("N8N_API_KEY");
-
-if (apiKey !== expectedKey) {
-  throw new Error("Unauthorized");
+**Check 1: Verify clerk_user_id in custom_data**
+```javascript
+// In your Paddle checkout
+customData: {
+  clerkUserId: user?.id,  // Make sure this is set
+  planType: 'starter',
+  billingCycle: 'monthly'
 }
 ```
 
-Set the secret:
-
+**Check 2: Check function logs**
 ```bash
-supabase secrets set N8N_API_KEY=your_secret_key_here
+supabase functions logs paddle-webhook --limit 50
 ```
 
-Update n8n to include header:
-
-```
-x-api-key: your_secret_key_here
-```
-
-## Update Process
-
-When you need to update the function:
-
-```bash
-# Make changes to supabase/functions/create-blog/index.ts
-# Then deploy
-supabase functions deploy create-blog
-
-# Check logs to verify
-supabase functions logs create-blog --tail
-```
-
-## Complete Workflow
-
-### Step-by-Step Process
-
-1. **User Action:**
-
-   - User enters YouTube URL at `/dashboard/convert`
-   - Frontend sends: `youtubeUrl`, `clerk_user_id`
-
-2. **n8n Processing:**
-
-   - Receives webhook with URL and user ID
-   - Downloads YouTube transcript
-   - Sends to AI for processing
-   - AI generates: title, content, excerpt, tags
-
-3. **Blog Creation:**
-
-   - n8n sends data to `create-blog` Edge Function
-   - Edge Function creates blog with unique ID and slug
-   - Returns success response
-
-4. **User Dashboard:**
-
-   - User goes to `/dashboard/blogs`
-   - Sees new blog (as draft)
-   - Can preview, edit, or publish
-
-5. **Publishing:**
-   - User clicks "Publish"
-   - `is_publish` set to `true`
-   - Blog accessible at `/slug`
-
-## Useful Commands
-
-```bash
-# Deploy function
-supabase functions deploy create-blog
-
-# View logs
-supabase functions logs create-blog
-
-# List all functions
-supabase functions list
-
-# Delete function (if needed)
-supabase functions delete create-blog
-```
-
-## Expected Database State
-
-After successful blog creation:
-
+**Check 3: Verify user exists in database**
 ```sql
-blogs table:
-┌──────────────────────────────────────┬─────────────────────┬──────────────────┬─────────────┐
-│ id (UUID)                            │ title               │ slug             │ is_publish  │
-├──────────────────────────────────────┼─────────────────────┼──────────────────┼─────────────┤
-│ 550e8400-e29b-41d4-a716-446655440000 │ Getting Started...  │ getting-st-a1b2  │ false       │
-│ 7c9e6679-7425-40de-944b-e07fc1f90ae7 │ 10 Tips for Code    │ 10-tips-fo-x9y8  │ false       │
-└──────────────────────────────────────┴─────────────────────┴──────────────────┴─────────────┘
+SELECT * FROM profiles WHERE clerk_user_id = 'user_xxx';
+SELECT * FROM user_credits WHERE clerk_user_id = 'user_xxx';
 ```
 
-✅ Each row has a unique `id`  
-✅ Each row has a unique `slug`  
-✅ Default `is_publish = false`  
-✅ Ready to publish!
+### Database permission errors
+
+**Check 1: Verify service role key**
+- Go to Project Settings > API
+- Copy the service_role key (not anon key)
+- Update secrets
+
+**Check 2: Check RLS policies**
+```sql
+-- Service role should bypass RLS, but verify tables exist
+SELECT tablename FROM pg_tables WHERE schemaname = 'public';
+```
+
+### Function timeout
+
+Edge Functions have a 150-second timeout. If processing takes longer:
+- Optimize database queries
+- Use batch operations
+- Consider async processing
+
+## Security Best Practices
+
+### 1. Verify Webhook Signatures (Recommended)
+
+Add signature verification to the edge function:
+
+```typescript
+// Get Paddle webhook secret from environment
+const webhookSecret = Deno.env.get("PADDLE_WEBHOOK_SECRET");
+
+// Verify signature (Paddle provides this in headers)
+const signature = req.headers.get("paddle-signature");
+// Implement verification logic
+```
+
+### 2. Use Environment Variables
+
+Never hardcode:
+- API keys
+- Service role keys
+- Webhook secrets
+
+Always use:
+```typescript
+const secret = Deno.env.get("SECRET_NAME");
+```
+
+### 3. Log Sensitive Data Carefully
+
+Avoid logging:
+- Full customer data
+- Payment information
+- API keys
+
+Do log:
+- Event types
+- User IDs (hashed if needed)
+- Error messages
+
+## Performance Tips
+
+### 1. Use Database Indexes
+
+Ensure indexes exist on frequently queried columns:
+```sql
+CREATE INDEX IF NOT EXISTS idx_subscriptions_paddle_id 
+  ON subscriptions(paddle_subscription_id);
+```
+
+### 2. Batch Operations
+
+If processing multiple items, use batch inserts:
+```typescript
+await supabase.from('table').insert([item1, item2, item3]);
+```
+
+### 3. Error Handling
+
+Always wrap operations in try-catch:
+```typescript
+try {
+  await processWebhook(data);
+} catch (error) {
+  console.error('Error:', error);
+  // Return 200 to prevent Paddle retries for invalid data
+  // Return 500 for temporary failures
+}
+```
+
+## Cost Considerations
+
+Edge Functions pricing:
+- **Free tier**: 500,000 invocations/month
+- **Pro tier**: 2,000,000 invocations/month
+- Additional: $2 per 1M invocations
+
+For most applications, webhooks will stay within free tier.
 
 ## Next Steps
 
-1. **Deploy the function** using the commands above
-2. **Get the function URL** from the deployment output
-3. **Update your n8n workflow** to call this URL
-4. **Test** by submitting a YouTube URL
-5. **Verify** the blog appears in `/dashboard/blogs`
+1. ✅ Deploy edge function
+2. ✅ Configure Paddle webhook
+3. ✅ Test with sandbox subscription
+4. ✅ Monitor logs
+5. ✅ Go live with production
 
-Your blogs will now have guaranteed unique IDs! 🚀
+## Support
+
+- Supabase Edge Functions docs: https://supabase.com/docs/guides/functions
+- Paddle webhook docs: https://developer.paddle.com/webhooks/overview
+- Supabase Discord: https://discord.supabase.com
+
+---
+
+**Status**: Ready for deployment
+**Estimated setup time**: 15-20 minutes
