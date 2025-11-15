@@ -63,7 +63,7 @@ export default function TestPaddlePage() {
         <div className="mt-8 p-6 bg-[#1a1a1a] border border-gray-700 rounded-lg">
           <h2 className="text-xl font-bold mb-4">Instructions</h2>
           <ol className="list-decimal list-inside space-y-2">
-            <li>Click "Test Paddle Configuration" button above</li>
+            <li>Click &quot;Test Paddle Configuration&quot; button above</li>
             <li>Check browser console (F12) for detailed logs</li>
             <li>If test fails, verify your tokens in .env.local</li>
             <li>Tokens should be 40-50 characters long</li>
