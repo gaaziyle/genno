@@ -79,7 +79,7 @@ export default function ConvertPage() {
 
       // Send request directly to webhook
       const response = await fetch(
-        "hhttps://nn.farabiulder.com/webhook-test/youtube-to-blog",
+        "https://nn.farabiulder.com/webhook-test/youtube-to-blog",
         {
           method: "POST",
           headers: {
