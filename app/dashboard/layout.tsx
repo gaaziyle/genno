@@ -38,9 +38,21 @@ export default function DashboardLayout({
   }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchUserProfile = async () => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      console.warn("fetchUserProfile called without user.id");
+      return;
+    }
 
     try {
+      // Check if Supabase is configured
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      
+      if (!supabaseUrl || !supabaseKey) {
+        console.error("Supabase is not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local");
+        return;
+      }
+
       const { data, error } = await supabase
         .from("profiles")
         .select("first_name, last_name, username, profile_image_url")
@@ -48,13 +60,36 @@ export default function DashboardLayout({
         .single();
 
       if (error) {
-        console.error("Error fetching user profile:", error);
+        console.error("Error fetching user profile:", {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          fullError: error,
+        });
+        
+        // Provide more context based on error type
+        if (error.code === 'PGRST116') {
+          console.warn(`No profile found for clerk_user_id: ${user.id}. This might be a new user.`);
+        } else if (error.message?.includes('JWT')) {
+          console.error("Authentication error: Invalid or expired JWT token");
+        }
         return;
       }
 
-      setUserProfile(data);
+      if (data) {
+        setUserProfile(data);
+      } else {
+        console.warn(`No profile data returned for user: ${user.id}`);
+      }
     } catch (error) {
-      console.error("Error fetching user profile:", error);
+      console.error("Unexpected error fetching user profile:", {
+        error,
+        errorType: typeof error,
+        errorConstructor: error?.constructor?.name,
+        errorMessage: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
     }
   };
 

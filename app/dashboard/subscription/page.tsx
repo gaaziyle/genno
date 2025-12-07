@@ -43,7 +43,18 @@ export default function SubscriptionPage() {
         .single();
 
       if (creditsError) {
-        console.error("Error fetching user credits:", creditsError);
+        // If user doesn't have credits record, initialize with free plan defaults
+        if (creditsError.code === 'PGRST116') {
+          console.log("No credits record found, using free plan defaults");
+          setUserCredits({
+            credits: 3,
+            plan_type: 'free',
+            total_credits_used: 0,
+            last_credit_reset: new Date().toISOString()
+          });
+        } else {
+          console.error("Error fetching user credits:", creditsError);
+        }
       } else {
         setUserCredits(creditsData);
       }
