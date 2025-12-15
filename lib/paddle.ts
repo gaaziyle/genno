@@ -299,7 +299,7 @@ export async function openCheckout(
         email: customerEmail,
       },
       customData: {
-        clerkUserId: userId,
+        clerk_user_id: userId,
         planType: planName.toLowerCase(),
         billingCycle: billingCycle,
         userEmail: customerEmail,

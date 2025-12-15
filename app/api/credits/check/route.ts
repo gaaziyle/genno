@@ -22,7 +22,18 @@ export async function GET(req: NextRequest) {
       .eq("clerk_user_id", userId)
       .single();
 
+    // Handle case where user doesn't have a credits record yet (PGRST116 = no rows returned)
     if (error) {
+      // If no record found, return default free plan values
+      if (error.code === "PGRST116") {
+        return NextResponse.json({
+          credits: 3,
+          planType: "free",
+          totalCreditsUsed: 0,
+          hasCredits: true,
+        });
+      }
+
       console.error("Error fetching credits:", error);
       return NextResponse.json(
         { error: "Failed to fetch credits" },

@@ -76,10 +76,10 @@ export default function ConvertPage() {
           creditError.message || "Failed to deduct credit. Please try again."
         );
       }
-
+      
       // Send request directly to webhook
       const response = await fetch(
-        "https://nn.farabiulder.com/webhook/youtube-to-blog",
+          "https://nn.farabiulder.com/webhook-test/youtube-to-blog",
         {
           method: "POST",
           headers: {
