@@ -80,7 +80,7 @@ serve(async (req) => {
 });
 
 async function handleSubscriptionCreated(supabase: any, data: any) {
-  const clerkUserId = data.custom_data?.clerkUserId;
+  const clerkUserId = data.custom_data?.clerk_user_id;
   const planType = data.custom_data?.planType || "starter";
   const billingCycle = data.custom_data?.billingCycle || "monthly";
 
@@ -98,7 +98,7 @@ async function handleSubscriptionCreated(supabase: any, data: any) {
     paddle_customer_id: data.customer_id,
     plan_type: planType,
     status: data.status,
-    price_id: data.items[0]?.price_id,
+    price_id: data.items[0]?.price?.id,
     billing_cycle: billingCycle,
     amount: parseFloat(data.items[0]?.price?.unit_price?.amount || "0") / 100,
     currency: data.currency_code,
@@ -166,7 +166,7 @@ async function handleSubscriptionUpdated(supabase: any, data: any) {
 }
 
 async function handleSubscriptionCanceled(supabase: any, data: any) {
-  const clerkUserId = data.custom_data?.clerkUserId;
+  const clerkUserId = data.custom_data?.clerk_user_id;
 
   console.log("Canceling subscription:", data.id);
 
